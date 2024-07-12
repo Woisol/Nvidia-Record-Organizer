@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, IconButton } from '@mui/material';
 import { Check } from '@mui/icons-material';
 import RecordsGroup from './HomeStream/RecordsGroup';
-import { channel } from 'diagnostics_channel';
 type recordGroupData =
 	{
 		dateTitle: string,
@@ -38,6 +37,9 @@ const data: data = [
 	},
 ]
 export default function Home() {
+	const [displaySize, setDisplaySize] = useState(1)
+	// @ts-ignore
+	useEffect(() => { window.store.get("displaySize").then(res => setDisplaySize(res)) }, [])
 	return (
 		<div className="w-full h-[calc(100vh-32px)] px-5 py-4 relative overflow-y-scroll select-none flex flex-col">
 			{/* //!这里加一个overflow-y-scroll就可以防止滚动条覆盖标题栏了哈哈（本质就是body不需要滚动） */}
@@ -45,7 +47,7 @@ export default function Home() {
 			// ! flex-1
 			// ! display:table + display-row + height:32px & 100%
 			// ! calc(100vh-32px)（现用）*/}
-			{data.map((recordData, index) => <RecordsGroup recordData={recordData} />)}
+			{data.map((recordData, index) => <RecordsGroup displaySize={displaySize} setDisplaySize={setDisplaySize} recordData={recordData} />)}
 			{/* <IconButton className='w-14 h-14' sx={{ position: 'fixed', top: '40px', right: '40px' }}>
 				<Check />
 			</IconButton> */}
