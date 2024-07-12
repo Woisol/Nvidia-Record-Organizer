@@ -28,8 +28,8 @@ function createWindow(): void {
       // !对不起以为不是js是ts…………
       sandbox: false,
       contextIsolation: false,
-      // nodeIntegration: true
-      // webSecurity: false
+      nodeIntegration: true,
+      webSecurity: false
     },
     titleBarStyle: 'hidden',
     titleBarOverlay: {
@@ -39,8 +39,9 @@ function createWindow(): void {
       symbolColor: 'black',
     },
     title: 'Nvidia Record Organizer',
+    // !但是任务栏上显示的并不是这个而是HTML里面的
+    icon: path.join(__dirname, '../../resources/icon.png'),
     minWidth: 600,
-
     minHeight: 400,
   })
 

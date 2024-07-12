@@ -6,6 +6,9 @@ import icon from '../../../../resources/Icon.png'
 import iconBtnRefresh from '../../../../resources/btn-refresh.png'
 import iconBtnSetting from '../../../../resources/btn-setting.png'
 import iconBtnHelp from '../../../../resources/btn-help.png'
+
+import { HelpOutline, Refresh, SettingsOutlined } from '@mui/icons-material'
+
 // import path from 'path';
 // import Store from 'electron-store';
 // !定位问题！就是这里报错没有定义__dirname导致完全没有显示…………
@@ -30,17 +33,20 @@ export default function TitleBar(): JSX.Element {
       {/* <img src={path.join(__dirname, "../resources/Icon.png")} alt="NROR" />用什么path.join………… */}
       <span className='ml-1 select-text'>当前目录:{curDir}</span>
       {/* //td考虑加个单击复制目录 */}
-      <button className='h-fit ml-3 px-3 py-[2px] rounded-md bg-gray-300 transition-all hover:scale-110 active:bg-gray-400 active:scale-90'>更改</button>
+      <button className='h-fit ml-3 px-3 py-[2px] rounded-md bg-gray-300 transition-all shadow-md hover:scale-110 active:bg-gray-400 active:scale-90 '>更改</button>
       <div className="dragZone"></div>
       <div className="titleBar-extendBtn-region">
         <button className='titleBar-extendBtn group'>
-          <img src={iconBtnRefresh} alt="Refresh" draggable='false' className='mx-auto transition-all group-active:scale-90' />
+          {/* <Refresh /> */}
+          <img src={iconBtnRefresh} alt="Refresh" draggable='false' className='mx-auto transition-all group-hover:scale-110 group-active:scale-90' />
         </button>
         <button className='titleBar-extendBtn group'>
-          <img src={iconBtnSetting} alt="Setting" draggable='false' className='mx-auto transition-all group-active:scale-90' />
+          {/* <SettingsOutlined /> */}
+          <img src={iconBtnSetting} alt="Setting" draggable='false' className='mx-auto transition-all group-hover:scale-110 group-active:scale-90' />
         </button>
         <button className='titleBar-extendBtn group'>
-          <img src={iconBtnHelp} alt=" Help" draggable='false' className='mx-auto transition-all group-active:scale-90' />
+          {/* <HelpOutline /> */}
+          <img src={iconBtnHelp} alt=" Help" draggable='false' className='mx-auto transition-all group-hover:scale-110 group-active:scale-90' />
         </button>
       </div>
       <div className='w-32'></div>

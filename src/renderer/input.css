@@ -5,7 +5,8 @@
 .titleBar {
 	-webkit-user-select: none;
 	user-select: none;
-	@apply w-full h-8 px-2 fixed top-0 left-0 flex items-center text-sm border-b-2
+	z-index: 9999;
+	@apply w-full h-8 px-2 top-0 left-0 flex items-center text-sm border-b-2
 }
 
 .titleBar>.dragZone {
@@ -25,4 +26,10 @@
 
 .btn-scale {
 	@apply hover:scale-110 active:scale-90
+}
+
+body {
+	/* margin-top: 32px; */
+	/* !FT乱来 */
+	/* overflow: hidden; */
 }
