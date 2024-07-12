@@ -7,7 +7,12 @@
  * 最后才在electron-vite官网->快速开始里面找到这条npm create @quick-start/electron@latest呜才终于得麻了
  */
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
-import { join } from 'path'
+import path from 'path'
+// import electronStore from 'electron-store'
+// const electronStore = require('electron-store')
+// !在这里用这两个是直接弹报错窗口进都进不去
+// const store = new electronStore()
+// !艹main里面也不行…………
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 function createWindow(): void {
@@ -15,17 +20,22 @@ function createWindow(): void {
   const mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
-    show: false,
+    // show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      preload: path.join(__dirname, '../preload/index.js'),
+      // !对不起以为不是js是ts…………
+      sandbox: false,
+      contextIsolation: false,
+      // nodeIntegration: true
+      // webSecurity: false
     }
   })
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
+    mainWindow.show();
+    mainWindow.webContents.openDevTools();
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -38,7 +48,7 @@ function createWindow(): void {
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
 }
 
@@ -79,3 +89,35 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
+import('electron-store').then(res => {
+  // @ts-ignore
+  const store = new res.default();
+  // !注意这里返回的是res！要res.default才能访问的import的模块！
+  ipcMain.handle("electron-store-get", async(event, key) => {
+    // ~~event.sender.send("electron-store-get-reply", store.get(key));
+    // ~~event.reply
+    // !虽然on的event.sender也可以返回但是渲染进程不会等待！
+    // @ts-ignore
+    return store.get(key);
+  })
+  ipcMain.on("electron-store-set", (event, key, value) => {
+    // @ts-ignore
+    store.set(key, value);
+  })
+  // **配置默认设置
+// @ts-ignore
+const displaySize = store.get('displaySize');
+if (!displaySize) {
+  const defaultSetting = {
+    curDir:path.join(app.getPath('videos'),"Yuan Shen 原神"),
+    // ！获取系统Video位置！
+    // !同时不应该用字符串拼接的方式……
+    displaySize: 1,
+    maxGroupCount: 5,
+    autoSort: true,
+    autoRefresh: 1
+  }
+  // @ts-ignore
+  store.set(defaultSetting);
+}
+})
