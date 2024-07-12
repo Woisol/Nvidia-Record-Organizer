@@ -30,7 +30,18 @@ function createWindow(): void {
       contextIsolation: false,
       // nodeIntegration: true
       // webSecurity: false
-    }
+    },
+    titleBarStyle: 'hidden',
+    titleBarOverlay: {
+      color: 'rgba(255, 255, 255, 0.2)',
+      // !woc怎么这么好看！！！教程上面用的(0,0,0,0)，但是这样没有悬浮效果了
+      height: 32,
+      symbolColor: 'black',
+    },
+    title: 'Nvidia Record Organizer',
+    minWidth: 600,
+
+    minHeight: 400,
   })
 
   mainWindow.on('ready-to-show', () => {

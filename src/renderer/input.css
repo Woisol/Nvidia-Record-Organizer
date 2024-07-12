@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.titleBar {
+	-webkit-user-select: none;
+	user-select: none;
+	@apply w-full h-8 px-2 fixed top-0 left-0 flex items-center text-sm border-b-2
+}
+
+.titleBar>.dragZone {
+	-webkit-app-region: drag;
+	@apply flex-1 h-8 pointer-events-none -z-10
+	/* !在flex内填充剩余空间的方法！flex-1！ */
+}
+
+
+.titleBar-extendBtn {
+	@apply w-8 h-8 top-0 transition-all hover:bg-gray-200
+}
+
+.titleBar-extendBtn-region {
+	@apply w-fit h-8 flex
+}
+
+.btn-scale {
+	@apply hover:scale-110 active:scale-90
+}
