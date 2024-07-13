@@ -28,3 +28,7 @@ if (process.contextIsolated) {
   window.store = store;
   console.log("preload without contextBridge");
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  ipcRenderer.send('DOMContentLoaded')
+})

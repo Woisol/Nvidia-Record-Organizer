@@ -2,6 +2,8 @@ import { app, dialog } from 'electron'
 import path from 'path'
 import { mainWindow } from '.'
 import ElectronStore from 'electron-store'
+import { ConstructionTwoTone, ContactSupportOutlined, Flight, FormatOverline } from '@mui/icons-material'
+import { i } from 'vite/dist/node/types.d-aGj9QkWt'
 
 type recordGroupData =
 	{
@@ -9,6 +11,16 @@ type recordGroupData =
 		recordData: Array<{ name: string, checked: boolean }>
 	}
 type recordData = Array<recordGroupData>
+
+type setting = {
+	curDir: string,
+	displaySize: number,
+	maxGroupGapSeconds: number,
+	maxGroupCount: number,
+	autoSort: boolean,
+	autoRefresh: number
+}
+
 export const testData: recordData = [
 	{
 		dateTitle: "2024.07.11 13:04",
@@ -43,37 +55,149 @@ export const testData: recordData = [
 	},
 ]
 
-export var store:ElectronStore;
-import('electron-store').then(res => {
+export var store: ElectronStore;
+// !虽然可以export但是export出来的并没有定义…………所以还是在里面搞吧
+var curDir: string,displaySize: number,maxGroupGapSeconds: number, maxGroupCount: number,autoSort: boolean,autoRefresh: number;
+
+function updateCurDir(newDir: string) {
+	curDir = newDir;
 	// @ts-ignore
-	const electronStore  = new res.default()// as ElectronStore<setting<string,any>> ;
-	store = {
-		// @ts-ignore
-		get: electronStore.get.bind(electronStore),
-		// @ts-ignore
-		set: electronStore.set.bind(electronStore),
-	}
-})
+	store.set('curDir', curDir);
+	mainWindow.webContents.send('update-cur-dir', curDir);
+	mainWindow.webContents.send('update-record-data', searchRecordData());
+}
 
 // **配置默认设置
 export function initDefaultSetting() {
-	// @ts-ignore
-	const displaySize = store.get('displaySize');
-	if (!displaySize) {
-		const defaultSetting = {
-			curDir:path.join(app.getPath('videos'),"Yuan Shen 原神"),
-			displaySize: 1,
-			maxGroupCount: 5,
-			autoSort: true,
-			autoRefresh: 1
-		}
+	import('electron-store').then(res => {
 		// @ts-ignore
-		store.set(defaultSetting);
-	}
+		store  = new res.default()// as ElectronStore<setting<string,any>> ;
+		// @ts-ignore
+		const displaySize = store.get('maxGroupGapSeconds');
+		// !艹被坑惨了………………不能只是!！要用===undefined！
+		if (displaySize === undefined) {
+			const defaultSetting:setting = {
+				curDir:path.join(app.getPath('videos'),"Yuan Shen 原神"),
+				displaySize: 1,
+				maxGroupGapSeconds: 30,
+				maxGroupCount: 10,
+				autoSort: true,
+				autoRefresh: 1
+			}
+			// @ts-ignore
+			store.set(defaultSetting);
+		}
+	})
 }
 
-export function changeCurDir() {
-		const newDir =  dialog.showOpenDialogSync(mainWindow,{buttonLabel: '选择文件夹', properties: ["openDirectory"],defaultPath:app.getPath("videos"),message: "请选择需要整理回放的目录。"})
-		console.log("newDir", newDir);
+export function initSetting() {
+	// @ts-ignore
+	curDir = store.get('curDir');
+	// @ts-ignore
+	displaySize = store.get('displaySize');
+	// @ts-ignore
+	maxGroupGapSeconds = store.get('maxGroupGapSeconds');
+	// !哦哦哦哦！！是前面这个变量没有定义而不是读不出来…………该死的ts-ignore…………
+	// @ts-ignore
+	maxGroupCount = store.get('maxGroupCount');
+	// @ts-ignore
+	autoSort = store.get('autoSort');
+	// @ts-ignore
+	autoRefresh = store.get('autoRefresh');
+	const initSetting :setting = {
+		curDir:curDir,
+		displaySize: displaySize,
+		maxGroupGapSeconds: maxGroupCount,
+		maxGroupCount: maxGroupCount,
+		autoSort: autoSort,
+		autoRefresh: autoRefresh
+	}
+	console.log("initSetting", initSetting)
+	// td整合掉……
+	mainWindow.webContents.send('update-cur-dir', curDir);
+	mainWindow.webContents.send('init-setting', initSetting);
 
+	const initData  = searchRecordData();
+	mainWindow.webContents.send('update-record-data', initData);
+}
+
+export function changeCurDir():string | undefined {
+	const res = dialog.showOpenDialogSync(mainWindow, { buttonLabel: '选择文件夹', properties: ["openDirectory"], defaultPath: app.getPath("videos"), message: "请选择需要整理回放的目录。" })
+	if (!res) return;
+	updateCurDir(res[0]);
+	// @ts-ignore
+	return store.get('curDir');
+}
+
+export function searchRecordData(): recordData | null  {
+	const fs = require('fs');
+	const res = fs.readdirSync(curDir)
+	res.sort();
+	const recordRegex = /^.* Screenshot \d{4}.\d{2}.\d{2} - \d{2}.\d{2}.\d{2}.\d{2}.png$/;
+	const gameNameRegex = /^.*(?= Screenshot)/;
+	// const dayRegex = /(?<=Screenshot \d{4}.\d{2}.)\d{2}(?= - \d{2}.\d{2}.\d{2}.\d{2}.png)/;
+	const hourRegex = /(?<=Screenshot \d{4}.\d{2}.\d{2} - )\d{2}(?=.\d{2}.\d{2}.\d{2}.png)/;
+	const minRegex = /(?<=Screenshot \d{4}.\d{2}.\d{2} - \d{2}.)\d{2}(?=.\d{2}.\d{2}.png)/;
+	const secondRegex = /(?<=Screenshot \d{4}.\d{2}.\d{2} - \d{2}.\d{2}.)\d{2}(?=.\d{2}.png)/;
+	const files = res.filter((file, index) => file.endsWith('.png') && (!autoSort || recordRegex.test(file)));
+
+	if (files.length === 0) {
+		console.error("当前目录下没有找到回放文件");
+		return [];
+	}
+	// const gameName = gameNameRegex.exec(files[0])?.[1];
+	const game = files[0].match(gameNameRegex)?.[0];
+	// !额区分………………exec返回匹配项以外的更多信息，而且用来调用的对象不同
+	if (!game) { console.error("无法获取游戏名称"); }
+
+	function formatDateTitle(fileName: string, lastHour: number, lastMin: number) {
+		// @ts-ignor
+		const date = fileName.match(/(?<=Screenshot )\d{4}.\d{2}.\d{2} (?=- \d{2}.\d{2}.\d{2}.\d{2}.png)/)?.[0] as string;
+		// !这里消除报错怎么这么难…………
+		// if(lastTime.getMinutes() === curTime.getMinutes())
+			return date + lastHour.toString().padStart(2, "0") + ":" + lastMin.toString().padStart(2, "0");
+		// else {
+		// 	return date + lastTime.getHours() + ":" + lastTime.getMinutes() + " - " + curTime.getHours() + ":" + curTime.getMinutes();
+		// }
+
+	}
+
+	var lastHour = 0, lastMin = 0, lastSecond = 0;
+	// lastDay = Number(files[0].match(dayRegex)?.[0]);
+	lastHour = Number(files[0].match(hourRegex)?.[0]);
+	lastMin = Number(files[0].match(minRegex)?.[0]);
+	lastSecond = Number(files[0].match(secondRegex)?.[0]);
+	var lastTimeSeconds = lastHour * 3600 + lastMin * 60 + lastSecond;
+
+	var curHour = 0, curMin = 0, curSecond = 0;
+	// var foremostTimeSeconds:number = lastTimeSeconds;
+	var recordData: recordData=[], fileIndex:number = 1, fileGroup: string[] = [files[0]];
+	for (let i = 0; i < maxGroupCount && fileIndex < files.length;fileIndex++) {
+		// curDay = Number(files[fileIndex].match(dayRegex)?.[0]);
+		curHour = Number(files[fileIndex].match(hourRegex)?.[0]);
+		curMin = Number(files[fileIndex].match(minRegex)?.[0]);
+		curSecond = Number(files[fileIndex].match(secondRegex)?.[0]);
+		var curTimeSeconds = curHour * 3600 + curMin * 60 + curSecond;
+		if(curHour - lastHour === -23) lastTimeSeconds -= 86400;
+		// !不想用Date了，绕路！……
+
+		if (Math.abs(curTimeSeconds - lastTimeSeconds) < maxGroupGapSeconds) {
+			fileGroup.push(files[fileIndex]);
+			// foremostTimeSeconds = curTimeSeconds;
+		}
+		else {
+			i++;
+			recordData.push({
+				dateTitle: formatDateTitle(fileGroup[0], lastHour,lastMin),
+				recordData: fileGroup.map(file => ({ name: file, checked: false }))
+			})
+			fileGroup = [files[fileIndex]];
+		}
+		lastTimeSeconds = curTimeSeconds;
+		lastHour = curHour;
+		lastMin = curMin;
+	}
+	console.log(recordData);
+	return recordData;
+	// })
 }

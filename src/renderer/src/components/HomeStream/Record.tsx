@@ -3,6 +3,7 @@ import { Checkbox } from "@mui/material";
 import { useState, useEffect } from "react"
 
 type RecordData = {
+	curDir: string,
 	displaySize: number,
 	setDisplaySize: React.Dispatch<React.SetStateAction<number>>,
 	handleDetailWinOpen: (e: HTMLImageElement, detailWinOpen: boolean) => void,
@@ -12,18 +13,16 @@ type RecordData = {
 	}
 }
 
-export default function Record({ displaySize, setDisplaySize, handleDetailWinOpen, RecordData }: RecordData) {
-	const [curDir, setCurDir] = useState('');
+export default function Record({ curDir, displaySize, setDisplaySize, handleDetailWinOpen, RecordData }: RecordData) {
 	const [checked, setChecked] = useState(RecordData.checked);
-	// @ts-ignore
-	useEffect(() => { window.store.get("curDir").then(res => setCurDir(res)) }, [])
 
 	return (
 		<>
 			<div className={`${displaySize === 0 ? "w-[150px] h-[112.5px]" : displaySize === 1 ? "w-[250px] h-[187.5px]" : "w-[400px] h-[300px]"} overflow-hidden relative transition-all duration-300 rounded-2xl shadow-lg hover:scale-110 hover:z-10 ring-2 ring-gray-500`}>
 				{curDir === '' || RecordData.name === '' ? <p className="w-full text-center text-2xl"><br />数据不能为空！</p> :
 					<>
-						<img src={`file:\\\\${curDir}\\${RecordData.name}`} alt="" className="w-full h-full object-cover" onClick={(e) => handleDetailWinOpen(e.target as HTMLImageElement, true)} />
+						<img src={`file:\\\\${curDir}\\${RecordData.name}`} alt={RecordData.name} className="w-full h-full object-cover" onClick={(e) => handleDetailWinOpen(e.target as HTMLImageElement, true)} />
+						<p className={`w-full absolute text-white bg-gradient-to-t from-gray-700 to-gray-300 bg-opacity-50 pointer-events-none text-center ${displaySize === 0 ? 'text-sm -bottom-1' : 'text-lg -bottom-2'}`} style={{ textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden" }}>{RecordData.name.match(/(?<=Screenshot )\d{4}.\d{2}.\d{2} - \d{2}.\d{2}.\d{2}(?=.\d{2}.png)/)}</p>
 						<Checkbox checked={checked} onChange={e => { setChecked(e.target.checked); setDisplaySize((displaySize + 1) % 3) }} icon={<CheckCircleOutline />} checkedIcon={<CheckCircleRounded />} sx={{ bottom: '5px', right: '5px', position: 'absolute' }} />
 					</>
 				}

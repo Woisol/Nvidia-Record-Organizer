@@ -6,10 +6,10 @@ import iconBtnSetting from '../../../../resources/btn-setting.png'
 import iconBtnHelp from '../../../../resources/btn-help.png'
 
 // import { HelpOutline, Refresh, SettingsOutlined } from '@mui/icons-material'
-export default function TitleBar(): JSX.Element {
-  const [curDir, setCurDir] = useState('');
-  // @ts-ignore
-  useEffect(() => { window.store.get('curDir').then(res => { console.log("res:", res); setCurDir(res); }) },)
+type Props = {
+  curDir: string
+}
+export default function TitleBar({ curDir }: Props): JSX.Element {
   window.electron.ipcRenderer.on('update-record-data', () => { (document.getElementById('btn-refresh') as HTMLButtonElement).children[0].classList.remove('rotate') });
   return (
     <>
