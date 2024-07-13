@@ -33,3 +33,8 @@ body {
 	/* !FT乱来 */
 	/* overflow: hidden; */
 }
+
+/* img:not([src]) {
+	background-image: none;
+} */
+/* !from FT，据说可以除去无src时的无效图片，并没有用 */

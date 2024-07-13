@@ -1,11 +1,11 @@
-import { CheckCircleOutline, CheckCircleRounded, Fullscreen } from "@mui/icons-material";
+import { CheckCircleOutline, CheckCircleRounded } from "@mui/icons-material";
 import { Checkbox } from "@mui/material";
 import { useState, useEffect } from "react"
 
 type RecordData = {
 	displaySize: number,
 	setDisplaySize: React.Dispatch<React.SetStateAction<number>>,
-	handleDetailWinOpen: (e: React.MouseEvent<HTMLImageElement, MouseEvent>, detailWinOpen: boolean) => void,
+	handleDetailWinOpen: (e: HTMLImageElement, detailWinOpen: boolean) => void,
 	RecordData: {
 		name: string,
 		checked: boolean
@@ -31,7 +31,7 @@ export default function Record({ displaySize, setDisplaySize, handleDetailWinOpe
 				{/* // !开始是直接用displaySize判断的但显然错了所以这里改后的逻辑也不是很直接 */}
 				{curDir === '' || RecordData.name === '' ? <p className="w-full text-center text-2xl"><br />数据不能为空！</p> :
 					<>
-						<img src={`file:\\\\${curDir}\\${RecordData.name}`} alt="" className="w-full h-full object-cover" onClick={(e) => handleDetailWinOpen(e, true)} />
+						<img src={`file:\\\\${curDir}\\${RecordData.name}`} alt="" className="w-full h-full object-cover" onClick={(e) => handleDetailWinOpen(e.target as HTMLImageElement, true)} />
 						{/* // !关闭WebSecurity依然报错Refused to load the image 'xxx' because it violates the following Content Security Policy directive: "img-src 'self' data:". */}
 						{/* // !去index.html注释掉那段meta的就可以了 */}
 						<Checkbox checked={checked} onChange={e => { setChecked(e.target.checked); setDisplaySize((displaySize + 1) % 3) }} icon={<CheckCircleOutline />} checkedIcon={<CheckCircleRounded />} sx={{ bottom: '5px', right: '5px', position: 'absolute' }} />
