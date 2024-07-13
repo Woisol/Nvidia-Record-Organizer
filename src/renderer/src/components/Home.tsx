@@ -2,46 +2,13 @@ import { useEffect, useState } from 'react';
 import { Button, IconButton } from '@mui/material';
 import { Check, EmojiPeopleOutlined } from '@mui/icons-material';
 import RecordsGroup from './HomeStream/RecordsGroup';
-type recordGroupData =
-	{
-		dateTitle: string,
-		recordData: Array<{ name: string, checked: boolean }>
-		// recordData: [{name:string, checked:boolean}]
-		// !不能这样…………不然只允许一个元素……
-	}
-type data = Array<recordGroupData>
+// import { ipcRenderer } from 'electron';
 const emptySrc = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-const data: data = [
-	{
-		dateTitle: "2024.07.11 13:04",
-		recordData: [
-			{ name: "Yuan Shen 原神 23.06.19 - 08.03生日礼物.png", checked: false },
-			{ name: "Yuan Shen 原神  2023.07.05 ？？？卡出了奇怪的界面.png", checked: false },
-			{ name: '', checked: false }, { name: '', checked: false }, { name: '', checked: false }, { name: '', checked: false },
-
-		]
-	},
-	{
-		dateTitle: "2024.07.12 22:00",
-		recordData: [
-			{ name: "Yuan Shen 原神 23.06.19 - 08.03生日礼物.png", checked: false },
-			{ name: '', checked: false }, { name: '', checked: false },
-
-		]
-	},
-	{
-		dateTitle: "2024.07.13 00:00",
-		recordData: [
-			{ name: "Yuan Shen 原神 23.06.19 - 08.03生日礼物.png", checked: false },
-			{ name: '', checked: false }, { name: '', checked: false }, { name: '', checked: false },
-
-		]
-	},
-]
-var originTarget: HTMLImageElement, originImgClientRects: ClientRect, detailImgPosition: {}, isReachCenter: boolean = false;
+var originTarget: HTMLImageElement, originImgClientRects: ClientRect, isReachCenter: boolean = false;
 export default function Home() {
 	const [displaySize, setDisplaySize] = useState(1)
 	const [detailWinOpen, setDetailWinOpen] = useState(false);
+	const [recordData, setRecordData] = useState([])
 	// const [detailImgSrc, setDetailImgSrc] = useState("")
 	// const [detailImgStyle, setDetailImgStyle] = useState({ left: '0px', top: '0px', width: '0px', height: '0px' } as React.CSSProperties)
 	// !用hook也没用，而且由于hook的延后行动画也坏了
@@ -166,7 +133,7 @@ export default function Home() {
 			}, 500)
 		}
 	}
-
+	window.electron.ipcRenderer.on('update-record-data', (events, arg) => { setRecordData(arg); console.log("render update-record-data ", arg) });
 	return (
 		<div className="w-full h-[calc(100vh-32px)] px-5 py-4 relative overflow-y-scroll select-none flex flex-col">
 			{/* //!这里加一个overflow-y-scroll就可以防止滚动条覆盖标题栏了哈哈（本质就是body不需要滚动） */}
@@ -174,7 +141,7 @@ export default function Home() {
 			// ! flex-1
 			// ! display:table + display-row + height:32px & 100%
 			// ! calc(100vh-32px)（现用）*/}
-			{data.map((recordData, index) => <RecordsGroup displaySize={displaySize} setDisplaySize={setDisplaySize} handleDetailWinOpen={handleDetailWinOpen} recordData={recordData} />)}
+			{recordData.map((recordData, index) => <RecordsGroup displaySize={displaySize} setDisplaySize={setDisplaySize} handleDetailWinOpen={handleDetailWinOpen} recordData={recordData} />)}
 			{/* <IconButton className='w-14 h-14' sx={{ position: 'fixed', top: '40px', right: '40px' }}>
 				<Check />
 			</IconButton> */}

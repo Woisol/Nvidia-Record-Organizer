@@ -15,6 +15,47 @@ import path from 'path'
 // !艹main里面也不行…………
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+type recordGroupData =
+	{
+		dateTitle: string,
+		recordData: Array<{ name: string, checked: boolean }>
+		// recordData: [{name:string, checked:boolean}]
+		// !不能这样…………不然只允许一个元素……
+	}
+type recordData = Array<recordGroupData>
+const testData: recordData = [
+	{
+		dateTitle: "2024.07.11 13:04",
+		recordData: [
+			{ name: "Yuan Shen 原神 23.06.19 - 08.03生日礼物.png", checked: false },
+			{ name: "Yuan Shen 原神  2023.07.05 ？？？卡出了奇怪的界面.png", checked: false },
+      { name: 'Yuan Shen 原神 23.06.19 - 13.27温迪传说.png', checked: false },
+      { name: 'Yuan Shen 原神 23.06.19 - 15.34公子传说.png', checked: false },
+      { name: 'Yuan Shen 原神 23.06.19 - 16.26公子传说.png', checked: false },
+      { name: 'Yuan Shen 原神 Screenshot 2023.07.06 花神诞祭 (61).png', checked: false },
+
+		]
+	},
+	{
+		dateTitle: "2024.07.12 22:00",
+		recordData: [
+			{ name: "Yuan Shen 原神 23.06.20 - 08.39七圣召唤.png", checked: false },
+      { name: 'Yuan Shen 原神 23.06.26 - 08.24钟离传说 (2).png', checked: false },
+      { name: 'Yuan Shen 原神 Screenshot 2023.07.05 须弥主线前段 (20).png', checked: false },
+
+		]
+	},
+	{
+		dateTitle: "2024.07.13 00:00",
+		recordData: [
+			{ name: "Yuan Shen 原神 Screenshot 2023.07.09 - 16.19.09.87.png", checked: false },
+      { name: 'Yuan Shen 原神 23.06.26 - 11.43钟离传说 (3).png', checked: false },
+      { name: 'Yuan Shen 原神 23.06.26 - 18.50甘雨传说.png', checked: false },
+      { name: 'Yuan Shen 原神 2023.07.05 1.jpg', checked: false },
+
+		]
+	},
+]
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -62,6 +103,15 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
+
+  //**----------------------------customer code------------------------------------------------------
+  mainWindow.webContents.send('update-record-data', testData);
+  ipcMain.on('request-update-record-data', () => {
+    // !似乎同名还是会导致多次交错发送的问题…………现在发送两次才合理
+    mainWindow.webContents.send('update-record-data', testData);
+    console.log('index update-record-data', testData)
+  })
+
 }
 
 // This method will be called when Electron has finished
@@ -79,7 +129,7 @@ app.whenReady().then(() => {
   })
 
   // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  // ipcMain.on('ping', () => console.log('pong'))
 
   createWindow()
 
@@ -88,6 +138,8 @@ app.whenReady().then(() => {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+
+  //**----------------------------customer code-----------------------------------------------------
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common

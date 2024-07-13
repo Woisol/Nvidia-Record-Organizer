@@ -680,10 +680,6 @@ video {
   height: 100%;
 }
 
-.h-auto {
-  height: auto;
-}
-
 .min-h-\[200px\] {
   min-height: 200px;
 }
@@ -1002,6 +998,22 @@ body {
 } */
 
 /* !from FT，据说可以除去无src时的无效图片，并没有用 */
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/*!呃呃光一个keyframes还不够…………  */
+
+.rotate {
+  animation: rotate 0.5s linear infinite;
+}
 
 .hover\:z-10:hover {
   z-index: 10;
