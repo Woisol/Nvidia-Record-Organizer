@@ -29,30 +29,33 @@ export default function TitleBar(): JSX.Element {
   // !再次注意不是{}是[]！
   window.electron.ipcRenderer.on('update-record-data', () => { (document.getElementById('btn-refresh') as HTMLButtonElement).children[0].classList.remove('rotate') });
   return (
-    <div className="titleBar">
-      <img src={icon} alt="NROR" className='w-5 h-5' draggable='false' />
-      {/* <img src={path.join(__dirname, "../resources/Icon.png")} alt="NROR" />用什么path.join………… */}
-      <span className='ml-1'>当前目录:{curDir}</span>
-      {/* //td考虑加个单击复制目录 */}
-      <button className='h-fit ml-3 px-3 py-[2px] rounded-md bg-gray-300 transition-all shadow-md hover:scale-110 active:bg-gray-400 active:scale-90 '>更改</button>
-      <div className="dragZone"></div>
-      <div className="titleBar-extendBtn-region">
-        <button id='btn-refresh' className='titleBar-extendBtn group' onClick={() => { (document.getElementById('btn-refresh') as HTMLButtonElement).children[0].classList.add('rotate'); window.electron.ipcRenderer.send('request-update-record-data') }}>
-          {/* //!断言也可以去掉可能为null的报错哈哈 */}
-          {/* <Refresh /> */}
-          <img src={iconBtnRefresh} alt="Refresh" draggable='false' className='mx-auto transition-all group-hover:scale-110 group-active:scale-90' />
-        </button>
-        <button id='btn-setting' className='titleBar-extendBtn group' >
-          {/* <SettingsOutlined /> */}
-          <img src={iconBtnSetting} alt="Setting" draggable='false' className='mx-auto transition-all group-hover:scale-110 group-active:scale-90' />
-        </button>
-        <button className='titleBar-extendBtn group'>
-          {/* <HelpOutline /> */}
-          <img src={iconBtnHelp} alt=" Help" draggable='false' className='mx-auto transition-all group-hover:scale-110 group-active:scale-90' />
-        </button>
+    <>
+      <div className='w-full h-8'></div>
+      <div className="titleBar">
+        <img src={icon} alt="NRO" className='w-5 h-5' draggable='false' />
+        {/* <img src={path.join(__dirname, "../resources/Icon.png")} alt="NROR" />用什么path.join………… */}
+        <span className='ml-1'>当前目录:{curDir}</span>
+        {/* //td考虑加个单击复制目录 */}
+        <button className='h-fit ml-3 px-3 py-[2px] rounded-md bg-gray-300 transition-all shadow-md hover:scale-110 active:bg-gray-400 active:scale-90 ' onClick={() => { window.electron.ipcRenderer.send('request-change-cur-dir') }}>更改</button>
+        <div className="dragZone"></div>
+        <div className="titleBar-extendBtn-region">
+          <button id='btn-refresh' className='titleBar-extendBtn group' onClick={() => { (document.getElementById('btn-refresh') as HTMLButtonElement).children[0].classList.add('rotate'); window.electron.ipcRenderer.send('request-update-record-data') }}>
+            {/* //!断言也可以去掉可能为null的报错哈哈 */}
+            {/* <Refresh /> */}
+            <img src={iconBtnRefresh} alt="Refresh" draggable='false' className='mx-auto transition-all group-hover:scale-110 group-active:scale-90' />
+          </button>
+          <button id='btn-setting' className='titleBar-extendBtn group' >
+            {/* <SettingsOutlined /> */}
+            <img src={iconBtnSetting} alt="Setting" draggable='false' className='mx-auto transition-all group-hover:scale-110 group-active:scale-90' />
+          </button>
+          <button className='titleBar-extendBtn group'>
+            {/* <HelpOutline /> */}
+            <img src={iconBtnHelp} alt=" Help" draggable='false' className='mx-auto transition-all group-hover:scale-110 group-active:scale-90' />
+          </button>
+        </div>
+        <div className='w-32'></div>
       </div>
-      <div className='w-32'></div>
-    </div>
+    </>
   )
 }
 // @ts-ignore

@@ -21,7 +21,7 @@ export default function RecordsGroup({ displaySize, setDisplaySize, handleDetail
 				<p className="w-1/3 border-b-2 border-gray-300 mb-2">{recordData.dateTitle}</p>
 				<div className="w-fit relative flex flex-wrap gap-3">
 					{recordData.recordData.map((item, index) => (
-						<Record displaySize={displaySize} setDisplaySize={setDisplaySize} handleDetailWinOpen={handleDetailWinOpen} RecordData={item} />
+						<Record key={index} displaySize={displaySize} setDisplaySize={setDisplaySize} handleDetailWinOpen={handleDetailWinOpen} RecordData={item} />
 					))}
 				</div>
 			</div>

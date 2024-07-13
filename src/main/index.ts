@@ -15,52 +15,15 @@ import path from 'path'
 // !艹main里面也不行…………
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-type recordGroupData =
-	{
-		dateTitle: string,
-		recordData: Array<{ name: string, checked: boolean }>
-		// recordData: [{name:string, checked:boolean}]
-		// !不能这样…………不然只允许一个元素……
-	}
-type recordData = Array<recordGroupData>
-const testData: recordData = [
-	{
-		dateTitle: "2024.07.11 13:04",
-		recordData: [
-			{ name: "Yuan Shen 原神 23.06.19 - 08.03生日礼物.png", checked: false },
-			{ name: "Yuan Shen 原神  2023.07.05 ？？？卡出了奇怪的界面.png", checked: false },
-      { name: 'Yuan Shen 原神 23.06.19 - 13.27温迪传说.png', checked: false },
-      { name: 'Yuan Shen 原神 23.06.19 - 15.34公子传说.png', checked: false },
-      { name: 'Yuan Shen 原神 23.06.19 - 16.26公子传说.png', checked: false },
-      { name: 'Yuan Shen 原神 Screenshot 2023.07.06 花神诞祭 (61).png', checked: false },
-
-		]
-	},
-	{
-		dateTitle: "2024.07.12 22:00",
-		recordData: [
-			{ name: "Yuan Shen 原神 23.06.20 - 08.39七圣召唤.png", checked: false },
-      { name: 'Yuan Shen 原神 23.06.26 - 08.24钟离传说 (2).png', checked: false },
-      { name: 'Yuan Shen 原神 Screenshot 2023.07.05 须弥主线前段 (20).png', checked: false },
-
-		]
-	},
-	{
-		dateTitle: "2024.07.13 00:00",
-		recordData: [
-			{ name: "Yuan Shen 原神 Screenshot 2023.07.09 - 16.19.09.87.png", checked: false },
-      { name: 'Yuan Shen 原神 23.06.26 - 11.43钟离传说 (3).png', checked: false },
-      { name: 'Yuan Shen 原神 23.06.26 - 18.50甘雨传说.png', checked: false },
-      { name: 'Yuan Shen 原神 2023.07.05 1.jpg', checked: false },
-
-		]
-	},
-]
+import { ipcSetup } from './ipcSetup'
+import { ExpandOutlined } from '@mui/icons-material'
+export var mainWindow: BrowserWindow;
+// !/笑，js特别灵活，不要像之前那样把需要用mainWindow的全部放在这下面啦！
 function createWindow(): void {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+  mainWindow = new BrowserWindow({
+    width: 910,
+    height: 700,
     // show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -104,14 +67,8 @@ function createWindow(): void {
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
 
-  //**----------------------------customer code------------------------------------------------------
-  mainWindow.webContents.send('update-record-data', testData);
-  ipcMain.on('request-update-record-data', () => {
-    // !似乎同名还是会导致多次交错发送的问题…………现在发送两次才合理
-    mainWindow.webContents.send('update-record-data', testData);
-    console.log('index update-record-data', testData)
-  })
-
+  // export const mainWindow;
+  ipcSetup();
 }
 
 // This method will be called when Electron has finished
@@ -139,7 +96,6 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 
-  //**----------------------------customer code-----------------------------------------------------
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -153,35 +109,3 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
-import('electron-store').then(res => {
-  // @ts-ignore
-  const store = new res.default();
-  // !注意这里返回的是res！要res.default才能访问的import的模块！
-  ipcMain.handle("electron-store-get", async(event, key) => {
-    // ~~event.sender.send("electron-store-get-reply", store.get(key));
-    // ~~event.reply
-    // !虽然on的event.sender也可以返回但是渲染进程不会等待！
-    // @ts-ignore
-    return store.get(key);
-  })
-  ipcMain.on("electron-store-set", (event, key, value) => {
-    // @ts-ignore
-    store.set(key, value);
-  })
-  // **配置默认设置
-// @ts-ignore
-const displaySize = store.get('displaySize');
-if (!displaySize) {
-  const defaultSetting = {
-    curDir:path.join(app.getPath('videos'),"Yuan Shen 原神"),
-    // ！获取系统Video位置！
-    // !同时不应该用字符串拼接的方式……
-    displaySize: 1,
-    maxGroupCount: 5,
-    autoSort: true,
-    autoRefresh: 1
-  }
-  // @ts-ignore
-  store.set(defaultSetting);
-}
-})

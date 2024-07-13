@@ -141,7 +141,7 @@ export default function Home() {
 			// ! flex-1
 			// ! display:table + display-row + height:32px & 100%
 			// ! calc(100vh-32px)（现用）*/}
-			{recordData.map((recordData, index) => <RecordsGroup displaySize={displaySize} setDisplaySize={setDisplaySize} handleDetailWinOpen={handleDetailWinOpen} recordData={recordData} />)}
+			{recordData.map((recordData, index) => <RecordsGroup key={index} displaySize={displaySize} setDisplaySize={setDisplaySize} handleDetailWinOpen={handleDetailWinOpen} recordData={recordData} />)}
 			{/* <IconButton className='w-14 h-14' sx={{ position: 'fixed', top: '40px', right: '40px' }}>
 				<Check />
 			</IconButton> */}

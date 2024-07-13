@@ -647,6 +647,10 @@ video {
   height: 1.25rem;
 }
 
+.h-8 {
+  height: 2rem;
+}
+
 .h-\[112\.5px\] {
   height: 112.5px;
 }
@@ -908,6 +912,17 @@ video {
   box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 
+.ring-2 {
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
+
+.ring-gray-500 {
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(107 114 128 / var(--tw-ring-opacity));
+}
+
 .backdrop-blur-2xl {
   --tw-backdrop-blur: blur(40px);
   -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
@@ -932,7 +947,8 @@ video {
   -webkit-user-select: none;
   -moz-user-select: none;
        user-select: none;
-  z-index: 9999;
+  z-index: 1000;
+  position: fixed;
   top: 0px;
   left: 0px;
   display: flex;
@@ -940,6 +956,8 @@ video {
   width: 100%;
   align-items: center;
   border-bottom-width: 2px;
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
   padding-left: 0.5rem;
   padding-right: 0.5rem;
   font-size: 0.875rem;
@@ -987,11 +1005,15 @@ video {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
-body {
-  /* margin-top: 32px; */
-  /* !FT乱来 */
-  /* overflow: hidden; */
-}
+/* body { */
+
+/* margin-top: 32px; */
+
+/* !FT乱来 */
+
+/* overflow: hidden; */
+
+/* } */
 
 /* img:not([src]) {
 	background-image: none;
