@@ -14,7 +14,7 @@ export default function Home() {
 
 	function handleDetailWinOpen(target: HTMLImageElement, detailWinOpen: boolean) {
 		const detailImg = document.getElementById("detailImg") as HTMLImageElement;
-		if (detailWinOpen) {
+		if (detailWinOpen && detailImg.src === emptySrc) {
 			isReachCenter = false;
 			setDetailWinOpen(detailWinOpen);
 
@@ -22,8 +22,7 @@ export default function Home() {
 			originImgClientRects = originTarget.getClientRects()[0];
 			if (!originImgClientRects) console.error("originImgClientRects is null");
 			detailImg.style.cssText = `left:${originImgClientRects.left}px;top:${originImgClientRects.top}px;width:${originImgClientRects.width}px;height:${originImgClientRects.height}px;`;
-			if (originTarget.src !== emptySrc)
-				detailImg.src = originTarget.src;
+			detailImg.src = originTarget.src;
 			originTarget.src = emptySrc;
 
 			setTimeout(() => {
