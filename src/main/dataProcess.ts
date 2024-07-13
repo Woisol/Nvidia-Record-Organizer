@@ -1,16 +1,12 @@
-import { FunctionsOutlined } from '@mui/icons-material'
-import { app, dialog, ipcMain } from 'electron'
+import { app, dialog } from 'electron'
 import path from 'path'
 import { mainWindow } from '.'
-import { get } from 'http'
 import ElectronStore from 'electron-store'
 
 type recordGroupData =
 	{
 		dateTitle: string,
 		recordData: Array<{ name: string, checked: boolean }>
-		// recordData: [{name:string, checked:boolean}]
-		// !不能这样…………不然只允许一个元素……
 	}
 type recordData = Array<recordGroupData>
 export const testData: recordData = [
@@ -46,7 +42,8 @@ export const testData: recordData = [
 		]
 	},
 ]
-export var store;
+
+export var store:ElectronStore;
 import('electron-store').then(res => {
 	// @ts-ignore
 	const electronStore  = new res.default()// as ElectronStore<setting<string,any>> ;
@@ -56,8 +53,8 @@ import('electron-store').then(res => {
 		// @ts-ignore
 		set: electronStore.set.bind(electronStore),
 	}
-	// !注意这里返回的是res！要res.default才能访问的import的模块！
 })
+
 // **配置默认设置
 export function initDefaultSetting() {
 	// @ts-ignore
@@ -65,8 +62,6 @@ export function initDefaultSetting() {
 	if (!displaySize) {
 		const defaultSetting = {
 			curDir:path.join(app.getPath('videos'),"Yuan Shen 原神"),
-			// ！获取系统Video位置！
-			// !同时不应该用字符串拼接的方式……
 			displaySize: 1,
 			maxGroupCount: 5,
 			autoSort: true,

@@ -562,10 +562,6 @@ video {
   position: fixed;
 }
 
-.\!absolute {
-  position: absolute !important;
-}
-
 .absolute {
   position: absolute;
 }
@@ -588,10 +584,6 @@ video {
 
 .top-1\/2 {
   top: 50%;
-}
-
-.top-10 {
-  top: 2.5rem;
 }
 
 .top-14 {
@@ -663,10 +655,6 @@ video {
   height: 300px;
 }
 
-.h-\[600px\] {
-  height: 600px;
-}
-
 .h-\[calc\(100\%-32px\)\] {
   height: calc(100% - 32px);
 }
@@ -731,10 +719,6 @@ video {
 
 .w-screen {
   width: 100vw;
-}
-
-.flex-1 {
-  flex: 1 1 0%;
 }
 
 .-translate-x-1\/2 {
@@ -1005,22 +989,6 @@ video {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
-/* body { */
-
-/* margin-top: 32px; */
-
-/* !FT乱来 */
-
-/* overflow: hidden; */
-
-/* } */
-
-/* img:not([src]) {
-	background-image: none;
-} */
-
-/* !from FT，据说可以除去无src时的无效图片，并没有用 */
-
 @keyframes rotate {
   from {
     transform: rotate(0deg);
@@ -1030,8 +998,6 @@ video {
     transform: rotate(360deg);
   }
 }
-
-/*!呃呃光一个keyframes还不够…………  */
 
 .rotate {
   animation: rotate 0.5s linear infinite;

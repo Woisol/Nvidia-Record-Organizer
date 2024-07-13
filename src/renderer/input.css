@@ -7,13 +7,11 @@
 	user-select: none;
 	z-index: 1000;
 	@apply w-full h-8 px-2 top-0 left-0 fixed flex items-center text-sm border-b-2 bg-white
-	/* !没有fixed就会被fixed的图片覆盖！ */
 }
 
 .titleBar>.dragZone {
 	-webkit-app-region: drag;
 	@apply flex-1 h-8 pointer-events-none -z-10
-	/* !在flex内填充剩余空间的方法！flex-1！ */
 }
 
 
@@ -29,16 +27,6 @@
 	@apply hover:scale-110 active:scale-90
 }
 
-/* body { */
-/* margin-top: 32px; */
-/* !FT乱来 */
-/* overflow: hidden; */
-/* } */
-
-/* img:not([src]) {
-	background-image: none;
-} */
-/* !from FT，据说可以除去无src时的无效图片，并没有用 */
 @keyframes rotate {
 	from {
 		transform: rotate(0deg);
@@ -49,7 +37,6 @@
 	}
 }
 
-/*!呃呃光一个keyframes还不够…………  */
 .rotate {
 	animation: rotate 0.5s linear infinite;
 }

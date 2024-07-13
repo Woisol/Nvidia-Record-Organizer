@@ -1,57 +1,43 @@
-/**
- * !哭了呜初始化项目又搞了好久
- * 一开始是用了npm create vite@latest，问ai差点要加后面的一堆参数但是其实这样就行用命令行选择
- * 但是这个是vite…………不是electron-vite…………也注意有两个官网一个vite一个专门的electron-vite
- * 找不到用electron-vite的，然后尝试了用npm create electron-vite@latest构建出来了，也确实能用npm run dev启动
- * 但是无法用VSC调试，官网上有launch.json的配置但是调用了node_modules里面的electron-vite，默认是没有装的，装了用debug-all也无法调试，一直连接超时，尝试了改成run dev里面的vite无效，改端口无效，改chrome为msedge无效
- * 最后才在electron-vite官网->快速开始里面找到这条npm create @quick-start/electron@latest呜才终于得麻了
- */
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow } from 'electron'
 import path from 'path'
-// import electronStore from 'electron-store'
-// const electronStore = require('electron-store')
-// !在这里用这两个是直接弹报错窗口进都进不去
-// const store = new electronStore()
-// !艹main里面也不行…………
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { ipcSetup } from './ipcSetup'
-import { ExpandOutlined } from '@mui/icons-material'
+
 export var mainWindow: BrowserWindow;
-// !/笑，js特别灵活，不要像之前那样把需要用mainWindow的全部放在这下面啦！
 function createWindow(): void {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 910,
     height: 700,
+    minWidth: 600,
+    minHeight: 400,
+    title: 'Nvidia Record Organizer',
+    icon: path.join(__dirname, '../../resources/icon.png'),
+
     // show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
+
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
-      // !对不起以为不是js是ts…………
       sandbox: false,
       contextIsolation: false,
       nodeIntegration: true,
       webSecurity: false
     },
+
     titleBarStyle: 'hidden',
     titleBarOverlay: {
       color: 'rgba(255, 255, 255, 0.2)',
-      // !woc怎么这么好看！！！教程上面用的(0,0,0,0)，但是这样没有悬浮效果了
       height: 32,
       symbolColor: 'black',
     },
-    title: 'Nvidia Record Organizer',
-    // !但是任务栏上显示的并不是这个而是HTML里面的
-    icon: path.join(__dirname, '../../resources/icon.png'),
-    minWidth: 600,
-    minHeight: 400,
   })
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show();
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -67,7 +53,6 @@ function createWindow(): void {
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
 
-  // export const mainWindow;
   ipcSetup();
 }
 
@@ -84,9 +69,6 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
-
-  // IPC test
-  // ipcMain.on('ping', () => console.log('pong'))
 
   createWindow()
 
