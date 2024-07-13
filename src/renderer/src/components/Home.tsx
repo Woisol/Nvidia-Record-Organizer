@@ -38,11 +38,11 @@ const data: data = [
 		]
 	},
 ]
-var originTarget: HTMLImageElement, originImgClientRects: ClientRect, detailImgPosition: {};
+var originTarget: HTMLImageElement, originImgClientRects: ClientRect, detailImgPosition: {}, isReachCenter: boolean = false;
 export default function Home() {
 	const [displaySize, setDisplaySize] = useState(1)
 	const [detailWinOpen, setDetailWinOpen] = useState(false);
-	const [detailImgSrc, setDetailImgSrc] = useState("")
+	// const [detailImgSrc, setDetailImgSrc] = useState("")
 	// const [detailImgStyle, setDetailImgStyle] = useState({ left: '0px', top: '0px', width: '0px', height: '0px' } as React.CSSProperties)
 	// !用hook也没用，而且由于hook的延后行动画也坏了
 	// @ts-ignore
@@ -52,13 +52,15 @@ export default function Home() {
 	function handleDetailWinOpen(target: HTMLImageElement, detailWinOpen: boolean) {
 		const detailImg = document.getElementById("detailImg") as HTMLImageElement;
 		// animationTimer.forEach(timer => clearTimeout(timer))
+		// !不加这个了加这个会有小概率丢失图片
+		// animationTimer = [];
 		if (detailWinOpen) {
 			// closeAnimationTimer.forEach(timer => clearTimeout(timer))
 			// closeAnimationTimer = [];
 
 			// originTarget = originImgClientRects = null;
 
-
+			isReachCenter = false;
 			setDetailWinOpen(detailWinOpen);
 			// originTarget = e.target as HTMLDivElement;
 			originTarget = target;
@@ -93,8 +95,9 @@ export default function Home() {
 			// !设置两次都无法解决初始位置和上一个相同的问题…………
 			// !很新的设置style的方式！
 			// setDetailImgStyle({ left: originImgClientRects.left + "px", top: originImgClientRects.top + "px", width: originImgClientRects.width + "px", height: originImgClientRects.height + "px" });
-			// detailImg.src = originTarget.src;
-			setDetailImgSrc(originTarget.src);
+			if (originTarget.src !== emptySrc)
+				detailImg.src = originTarget.src;
+			// setDetailImgSrc(originTarget.src);
 			// originTarget.classList.add('hidden');
 			// !艹不能hidden不然getclientrects就get不到了…………
 			originTarget.src = emptySrc;
@@ -117,6 +120,7 @@ export default function Home() {
 				if (!detailWinOpen) return;
 				const finalHeight = detailImg.clientHeight + "px";
 				detailImg.style.cssText = `height:${finalHeight};`
+				isReachCenter = true;
 				// console.log("500ms\tLeft", detailImg.clientLeft, " | Top", detailImg.clientTop)
 				// console.log("500ms\t", detailImg.classList);
 				// setDetailImgStyle({ height: finalHeight })
@@ -140,13 +144,17 @@ export default function Home() {
 			// 	detailImg.style.cssText = `left:${originImgClientRects.left}px;top:${originImgClientRects.top}px;width:${originImgClientRects.width}px;height:${originImgClientRects.height}px;`;
 			// }, 400)
 			// !想修复黑屏过渡后恢复位置由于原位置scale而没有准确恢复到原位的问题但是这样会导致卡顿……算了…………
+			if (!isReachCenter && detailImg.src !== emptySrc) {
+				originTarget.src = detailImg.src;
+			}
 			setTimeout(() => {
 				// originImgClientRects = originTarget.getClientRects()[0];
 				// if (originTarget.clientLeft === originImgClientRects.left && originTarget.clientTop === originImgClientRects.top) {
-				originTarget.src = detailImgSrc;
+				if (detailImg.src !== emptySrc)
+					originTarget.src = detailImg.src;
 				// !是React的原因吗这里如果还原src会导致丢失…………
-				// detailImg.src = emptySrc;
-				setDetailImgSrc(emptySrc);
+				detailImg.src = emptySrc;
+				// setDetailImgSrc(emptySrc);
 				detailImg.style.cssText = '';
 				// clearInterval(timer);
 				// ！！！！！！！！！！！！终于定位问题！！！！！！
@@ -166,7 +174,7 @@ export default function Home() {
 			// ! flex-1
 			// ! display:table + display-row + height:32px & 100%
 			// ! calc(100vh-32px)（现用）*/}
-			{data.map((recordData, index) => <RecordsGroup displaySize={displaySize} setDisplaySize={setDisplaySize} detailImgSrc={detailImgSrc} handleDetailWinOpen={handleDetailWinOpen} recordData={recordData} />)}
+			{data.map((recordData, index) => <RecordsGroup displaySize={displaySize} setDisplaySize={setDisplaySize} handleDetailWinOpen={handleDetailWinOpen} recordData={recordData} />)}
 			{/* <IconButton className='w-14 h-14' sx={{ position: 'fixed', top: '40px', right: '40px' }}>
 				<Check />
 			</IconButton> */}
@@ -181,7 +189,7 @@ export default function Home() {
 				{/* //!解决下面背景阴影没有动画的问题！就是这个hidden！改成poiter-events-none解决！ */}
 				<div className={`w-full h-full backdrop-blur-2xl transition-all duration-500 ${detailWinOpen ? 'opacity-50' : 'opacity-0'}`} style={{ backgroundColor: 'rgb(0,0,0)' }}></div>
 				{/* // !注意这种遮罩的不能包含下面的元素不然opacity一起影响了 */}
-				<img id="detailImg" src={detailImgSrc} alt="" className="rounded-2xl fixed object-cover transition-all duration-500" onClick={(e) => handleDetailWinOpen(e.target as HTMLImageElement, false)} />
+				<img id="detailImg" src={emptySrc} alt="" className="rounded-2xl fixed object-cover transition-all duration-500" onClick={(e) => handleDetailWinOpen(e.target as HTMLImageElement, false)} />
 				{/* //~~似乎这种居中方式当窗口大小变化时会反应迟钝…………额flex也一样的算了 */}
 				{/* <div className="bg-gray-900 w-[800px] h-[600px] rounded-2xl object-cover absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"></div> */}
 			</div>

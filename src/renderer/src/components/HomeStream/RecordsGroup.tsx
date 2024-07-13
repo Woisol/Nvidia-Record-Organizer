@@ -5,14 +5,13 @@ type recordData = {
 	displaySize: number,
 	setDisplaySize: React.Dispatch<React.SetStateAction<number>>,
 	// !woq自己补全出来的
-	detailImgSrc: string,
 	handleDetailWinOpen: (e: HTMLImageElement, detailWinOpen: boolean) => void,
 	recordData: {
 		dateTitle: string,
 		recordData: Array<{ name: string, checked: boolean }>
 	}
 }
-export default function RecordsGroup({ displaySize, setDisplaySize, detailImgSrc, handleDetailWinOpen, recordData }: recordData) {
+export default function RecordsGroup({ displaySize, setDisplaySize, handleDetailWinOpen, recordData }: recordData) {
 	// const [originTarget, setOriginTarget] = useState<HTMLImageElement>();
 	// !用hook就是莫名其妙更新不了…………不用了
 	// console.log("DetailWindow is ", `${detailWinOpen ? 'Open' : 'Close'}`)
