@@ -1,5 +1,5 @@
 import {  BrowserWindow, ipcMain } from "electron";
-import { changeCurDir, getSetting, initSetting, searchRecordData, store, testData, updateAutoRefresh, updateAutoSort, updateDisplaySize, updateMaxGoupCount, updateMaxGroupGapSeconds } from "./dataProcess";
+import { changeCurDir, getSetting, initSetting, searchRecordData, store, testData, updateAutoRefresh, updateAutoSort, updateDisplaySize, updateMaxGoupCount, updateMaxGroupGapSeconds, updateRenamineRecord } from "./dataProcess";
 import { mainWindow } from ".";
 import test from "node:test";
 import path from "node:path";
@@ -62,6 +62,15 @@ export function ipcSetup() {
 	})
 	ipcMain.on("request-change-auto-refresh", (e, arg) => {
 		updateAutoRefresh(arg);
+	})
+
+	//**----------------------------Renaming Process-----------------------------------------------------
+	type renamingRecordData = {
+		name: string,
+		checked: boolean
+	}
+	ipcMain.on("request-update-renaming-record", (e, arg:renamingRecordData) => {
+		updateRenamineRecord(arg.name, arg.checked);
 	})
 
 	//**----------------------------Window-----------------------------------------------------

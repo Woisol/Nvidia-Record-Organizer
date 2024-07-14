@@ -167,6 +167,7 @@ export function changeCurDir():string | undefined {
 	return store.get('curDir');
 }
 
+//**----------------------------Record Data-----------------------------------------------------
 export function searchRecordData(): recordData | null  {
 	const fs = require('fs');
 	const res = fs.readdirSync(curDir)
@@ -253,4 +254,7 @@ export function searchRecordData(): recordData | null  {
 	console.log(recordData);
 	return recordData;
 	// })
+}
+export function updateRenamineRecord(name: string, add: boolean() {
+
 }
