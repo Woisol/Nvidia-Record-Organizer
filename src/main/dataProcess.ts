@@ -60,6 +60,8 @@ export var store: ElectronStore;
 // !虽然可以export但是export出来的并没有定义…………所以还是在里面搞吧
 var curDir: string,displaySize: number,maxGroupGapSeconds: number, maxGroupCount: number,autoSort: boolean,autoRefresh: number;
 
+var renamingRecord: string[] = [];
+
 function updateCurDir(newDir: string) {
 	curDir = newDir;
 	// @ts-ignore
@@ -255,6 +257,22 @@ export function searchRecordData(): recordData | null  {
 	return recordData;
 	// })
 }
-export function updateRenamineRecord(name: string, add: boolean() {
-
+export function updateRenamineRecord(name: string, add: boolean ){
+	if (add) {
+		if (!renamingRecord.includes(name)) {
+			renamingRecord.push(name);
+		}
+		else {
+			console.error("updateRenamineRecord(): attempt to add existing record");
+		}
+	}
+	else {
+		if (renamingRecord.includes(name)) {
+			renamingRecord.splice(renamingRecord.indexOf(name), 1);
+		}
+		else {
+			console.error("updateRenamineRecord(): attempt to remove non-existent record");
+		}
+	}
+	console.log("renamingRecord:", renamingRecord);
 }

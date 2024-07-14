@@ -78,7 +78,7 @@ export default function Home({ curDir }: Props) {
 					// !woc！！！这！自己补全出来了tailwindcss的动画哈哈哈
 					:
 					<>
-						{recordData.map((recordData, index) => <RecordsGroup key={index} curDir={curDir} displaySize={displaySize} handleDetailWinOpen={handleDetailWinOpen} recordData={recordData} setRecordData={(value) => setRecordData(value)} />)}
+						{recordData.map((recordData, index) => <RecordsGroup key={index} index={index} curDir={curDir} displaySize={displaySize} handleDetailWinOpen={handleDetailWinOpen} recordData={recordData} setRecordData={(value) => setRecordData(value)} />)}
 						<Button size='medium' variant='contained' style={{ width: '300px', marginLeft: 'auto', marginRight: 'auto' }} >加载更多</Button>
 						<div className={`w-full h-[calc(100vh-32px)] fixed left-0 top-8 z-30 backdrop-blur-2xl transition-all duration-500 ${renamineWinOpen ? 'opacity-50' : 'opacity-0 pointer-events-none'}`} style={{ backgroundColor: 'rgb(0,0,0)' }}></div>
 						{/* //!pointer-events-none的究极大补丁哈哈哈哈 */}

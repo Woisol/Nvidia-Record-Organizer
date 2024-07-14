@@ -18,7 +18,7 @@ export default function Record({ curDir, displaySize, handleDetailWinOpen, Recor
 
 	return (
 		<>
-			<div className={`${displaySize === 0 ? "w-[150px] h-[112.5px]" : displaySize === 1 ? "w-[250px] h-[187.5px]" : "w-[400px] h-[300px]"} overflow-hidden relative transition-all duration-300 rounded-2xl shadow-lg hover:scale-110 hover:z-10 ring-2 ring-gray-500`}>
+			<div className={`${displaySize === 0 ? "w-[150px] h-[112.5px]" : displaySize === 1 ? "w-[250px] h-[187.5px]" : "w-[400px] h-[300px]"} overflow-hidden relative ${checked ? `${displaySize === 0 ? 'scale-110' : 'scale-105'} border-red-500` : 'border-gray-500'} rounded-2xl border-4 shadow-lg transition-all duration-300 ${displaySize === 0 ? 'hover:scale-110' : 'hover:scale-105'} hover:z-10 `}>
 				{curDir === '' || RecordData.name === '' ? <p className="w-full text-center text-2xl"><br />数据不能为空！</p> :
 					<>
 						<img src={`file:\\\\${curDir}\\${RecordData.name}`} alt={RecordData.name} className="w-full h-full object-cover" onClick={(e) => handleDetailWinOpen(e.target as HTMLImageElement, true)} />
@@ -26,8 +26,8 @@ export default function Record({ curDir, displaySize, handleDetailWinOpen, Recor
 							<div className="w-full h-full absolute bg-gradient-to-t from-gray-700 to-gray-300 opacity-30"></div>
 							{RecordData.name.match(/(?<=Screenshot )\d{4}.\d{2}.\d{2} - \d{2}.\d{2}.\d{2}(?=.\d{2}.png)/)}
 						</div>
-						<Checkbox checked={RecordData.checked} onChange={e => {
-							// setChecked(e.target.checked);
+						<Checkbox checked={checked} onChange={e => {
+							setChecked(e.target.checked);
 							window.electron.ipcRenderer.send('request-update-renaming-record', { name: RecordData.name, checked: e.target.checked });
 
 						}} icon={<CheckCircleOutline />} checkedIcon={<CheckCircleRounded />} sx={{ bottom: '5px', right: '5px', position: 'absolute', boxShadow: '0px 0px 20px rgba(0,0,0,0.5)' }} />
