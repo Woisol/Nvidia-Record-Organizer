@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+	outline: 0;
+}
+
 .titleBar {
 	-webkit-user-select: none;
 	user-select: none;
@@ -9,8 +13,11 @@
 	@apply w-full h-8 px-2 top-0 left-0 fixed flex items-center text-sm border-b-2 bg-white
 }
 
-.titleBar>.dragZone {
+.dragZone {
 	-webkit-app-region: drag;
+}
+
+.titleBar .dragZone {
 	@apply flex-1 h-8 pointer-events-none -z-10
 }
 

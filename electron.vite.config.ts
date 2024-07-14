@@ -12,9 +12,17 @@ export default defineConfig({
   renderer: {
     resolve: {
       alias: {
-        '@renderer': resolve('src/renderer/src')
+        '@renderer': resolve('src/renderer/src'),
       }
     },
     plugins: [react()]
-  }
+  },
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'src/renderer/index.html'),
+        setting: resolve(__dirname, 'src/renderer/setting.html')
+      }
+    }
+  },
 })

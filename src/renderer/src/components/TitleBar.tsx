@@ -26,7 +26,7 @@ export default function TitleBar({ curDir }: Props): JSX.Element {
             {/* <Refresh /> */}
             <img src={iconBtnRefresh} alt="Refresh" draggable='false' className='mx-auto transition-all group-hover:scale-110 group-active:scale-90' />
           </button>
-          <button id='btn-setting' className='titleBar-extendBtn group' >
+          <button id='btn-setting' className='titleBar-extendBtn group' onClick={() => { window.electron.ipcRenderer.send('open-settings') }} >
             {/* <SettingsOutlined /> */}
             <img src={iconBtnSetting} alt="Setting" draggable='false' className='mx-auto transition-all group-hover:scale-110 group-active:scale-90' />
           </button>

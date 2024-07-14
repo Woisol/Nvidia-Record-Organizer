@@ -5,6 +5,7 @@ import ElectronStore from 'electron-store'
 import { ConstructionTwoTone, ContactSupportOutlined, Flight, FormatOverline } from '@mui/icons-material'
 import { i } from 'vite/dist/node/types.d-aGj9QkWt'
 
+// !咳咳好像type不能export…………
 type recordGroupData =
 	{
 		dateTitle: string,
@@ -21,39 +22,39 @@ type setting = {
 	autoRefresh: number
 }
 
-export const testData: recordData = [
-	{
-		dateTitle: "2024.07.11 13:04",
-		recordData: [
-			{ name: "Yuan Shen 原神 23.06.19 - 08.03生日礼物.png", checked: false },
-			{ name: "Yuan Shen 原神  2023.07.05 ？？？卡出了奇怪的界面.png", checked: false },
-			{ name: 'Yuan Shen 原神 23.06.19 - 13.27温迪传说.png', checked: false },
-			{ name: 'Yuan Shen 原神 23.06.19 - 15.34公子传说.png', checked: false },
-			{ name: 'Yuan Shen 原神 23.06.19 - 16.26公子传说.png', checked: false },
-			{ name: 'Yuan Shen 原神 Screenshot 2023.07.06 花神诞祭 (61).png', checked: false },
+// export const testData: recordData = [
+// 	{
+// 		dateTitle: "2024.07.11 13:04",
+// 		recordData: [
+// 			{ name: "Yuan Shen 原神 23.06.19 - 08.03生日礼物.png", checked: false },
+// 			{ name: "Yuan Shen 原神  2023.07.05 ？？？卡出了奇怪的界面.png", checked: false },
+// 			{ name: 'Yuan Shen 原神 23.06.19 - 13.27温迪传说.png', checked: false },
+// 			{ name: 'Yuan Shen 原神 23.06.19 - 15.34公子传说.png', checked: false },
+// 			{ name: 'Yuan Shen 原神 23.06.19 - 16.26公子传说.png', checked: false },
+// 			{ name: 'Yuan Shen 原神 Screenshot 2023.07.06 花神诞祭 (61).png', checked: false },
 
-		]
-	},
-	{
-		dateTitle: "2024.07.12 22:00",
-		recordData: [
-			{ name: "Yuan Shen 原神 23.06.20 - 08.39七圣召唤.png", checked: false },
-			{ name: 'Yuan Shen 原神 23.06.26 - 08.24钟离传说 (2).png', checked: false },
-			{ name: 'Yuan Shen 原神 Screenshot 2023.07.05 须弥主线前段 (20).png', checked: false },
+// 		]
+// 	},
+// 	{
+// 		dateTitle: "2024.07.12 22:00",
+// 		recordData: [
+// 			{ name: "Yuan Shen 原神 23.06.20 - 08.39七圣召唤.png", checked: false },
+// 			{ name: 'Yuan Shen 原神 23.06.26 - 08.24钟离传说 (2).png', checked: false },
+// 			{ name: 'Yuan Shen 原神 Screenshot 2023.07.05 须弥主线前段 (20).png', checked: false },
 
-		]
-	},
-	{
-		dateTitle: "2024.07.13 00:00",
-		recordData: [
-			{ name: "Yuan Shen 原神 Screenshot 2023.07.09 - 16.19.09.87.png", checked: false },
-			{ name: 'Yuan Shen 原神 23.06.26 - 11.43钟离传说 (3).png', checked: false },
-			{ name: 'Yuan Shen 原神 23.06.26 - 18.50甘雨传说.png', checked: false },
-			{ name: 'Yuan Shen 原神 2023.07.05 1.jpg', checked: false },
+// 		]
+// 	},
+// 	{
+// 		dateTitle: "2024.07.13 00:00",
+// 		recordData: [
+// 			{ name: "Yuan Shen 原神 Screenshot 2023.07.09 - 16.19.09.87.png", checked: false },
+// 			{ name: 'Yuan Shen 原神 23.06.26 - 11.43钟离传说 (3).png', checked: false },
+// 			{ name: 'Yuan Shen 原神 23.06.26 - 18.50甘雨传说.png', checked: false },
+// 			{ name: 'Yuan Shen 原神 2023.07.05 1.jpg', checked: false },
 
-		]
-	},
-]
+// 		]
+// 	},
+// ]
 
 export var store: ElectronStore;
 // !虽然可以export但是export出来的并没有定义…………所以还是在里面搞吧
@@ -65,6 +66,32 @@ function updateCurDir(newDir: string) {
 	store.set('curDir', curDir);
 	mainWindow.webContents.send('update-cur-dir', curDir);
 	mainWindow.webContents.send('update-record-data', searchRecordData());
+}
+export function updateDisplaySize(size: number) {
+	displaySize = size;
+	// @ts-ignore
+	store.set('displaySize', displaySize);
+	mainWindow.webContents.send('update-display-size', displaySize);
+}
+export function updateMaxGroupGapSeconds(sec: number) {
+	maxGroupGapSeconds = sec;
+	// @ts-ignore
+	store.set('maxGroupGapSeconds', maxGroupGapSeconds);
+}
+export function updateMaxGoupCount(count: number) {
+	maxGroupCount = count;
+	// @ts-ignore
+	store.set('maxGroupCount', maxGroupCount);
+}
+export function updateAutoSort(value: boolean) {
+	autoSort = value;
+	// @ts-ignore
+	store.set('autoSort', autoSort);
+}
+export function updateAutoRefresh(value: number) {
+	autoRefresh = value;
+	// @ts-ignore
+	store.set('autoRefresh', autoRefresh);
 }
 
 // **配置默认设置
@@ -82,7 +109,7 @@ export function initDefaultSetting() {
 				maxGroupGapSeconds: 30,
 				maxGroupCount: 10,
 				autoSort: true,
-				autoRefresh: 1
+				autoRefresh: 5
 			}
 			// @ts-ignore
 			store.set(defaultSetting);
@@ -119,6 +146,17 @@ export function initSetting() {
 
 	const initData  = searchRecordData();
 	mainWindow.webContents.send('update-record-data', initData);
+}
+export function getSetting() :setting{
+	const curSetting: setting = {
+		curDir: curDir,
+		displaySize: displaySize,
+		maxGroupGapSeconds: maxGroupGapSeconds,
+		maxGroupCount: maxGroupCount,
+		autoSort: autoSort,
+		autoRefresh: autoRefresh
+	}
+	return curSetting;
 }
 
 export function changeCurDir():string | undefined {
@@ -172,30 +210,45 @@ export function searchRecordData(): recordData | null  {
 	var curHour = 0, curMin = 0, curSecond = 0;
 	// var foremostTimeSeconds:number = lastTimeSeconds;
 	var recordData: recordData=[], fileIndex:number = 1, fileGroup: string[] = [files[0]];
-	for (let i = 0; i < maxGroupCount && fileIndex < files.length;fileIndex++) {
-		// curDay = Number(files[fileIndex].match(dayRegex)?.[0]);
-		curHour = Number(files[fileIndex].match(hourRegex)?.[0]);
-		curMin = Number(files[fileIndex].match(minRegex)?.[0]);
-		curSecond = Number(files[fileIndex].match(secondRegex)?.[0]);
-		var curTimeSeconds = curHour * 3600 + curMin * 60 + curSecond;
-		if(curHour - lastHour === -23) lastTimeSeconds -= 86400;
-		// !不想用Date了，绕路！……
+	const maxMemberNum = 25;
+	// !艹遇到性能问题了哈哈从一开始的100降到50到现在20动画才不会掉帧…………
+	// !不对…………20也掉…………关键在于内存（）
+	if (maxGroupGapSeconds == 0) {
+		for (; fileIndex < files.length && fileIndex < maxMemberNum; fileIndex++) {
+			fileGroup .push(files[fileIndex]);
+		}
+		recordData.push({
+			dateTitle: "From " + formatDateTitle(fileGroup[0], lastHour,lastMin) + " [undivided]",
+			recordData: fileGroup.map(file => ({ name: file, checked: false }))
+		})
+	}
+	else {
+		for (let i = 0; i < maxGroupCount && fileIndex < files.length;fileIndex++) {
+			// !嗯这里不需要…………只要不太集中不会卡的……&& fileIndex < maxMemberNum * 2
+			// curDay = Number(files[fileIndex].match(dayRegex)?.[0]);
+			curHour = Number(files[fileIndex].match(hourRegex)?.[0]);
+			curMin = Number(files[fileIndex].match(minRegex)?.[0]);
+			curSecond = Number(files[fileIndex].match(secondRegex)?.[0]);
+			var curTimeSeconds = curHour * 3600 + curMin * 60 + curSecond;
+			if(curHour - lastHour === -23) lastTimeSeconds -= 86400;
+			// !不想用Date了，绕路！……
 
-		if (Math.abs(curTimeSeconds - lastTimeSeconds) < maxGroupGapSeconds) {
-			fileGroup.push(files[fileIndex]);
-			// foremostTimeSeconds = curTimeSeconds;
+			if (Math.abs(curTimeSeconds - lastTimeSeconds) < maxGroupGapSeconds) {
+				fileGroup.push(files[fileIndex]);
+				// foremostTimeSeconds = curTimeSeconds;
+			}
+			else {
+				i++;
+				recordData.push({
+					dateTitle: formatDateTitle(fileGroup[0], lastHour,lastMin),
+					recordData: fileGroup.map(file => ({ name: file, checked: false }))
+				})
+				fileGroup = [files[fileIndex]];
+			}
+			lastTimeSeconds = curTimeSeconds;
+			lastHour = curHour;
+			lastMin = curMin;
 		}
-		else {
-			i++;
-			recordData.push({
-				dateTitle: formatDateTitle(fileGroup[0], lastHour,lastMin),
-				recordData: fileGroup.map(file => ({ name: file, checked: false }))
-			})
-			fileGroup = [files[fileIndex]];
-		}
-		lastTimeSeconds = curTimeSeconds;
-		lastHour = curHour;
-		lastMin = curMin;
 	}
 	console.log(recordData);
 	return recordData;
