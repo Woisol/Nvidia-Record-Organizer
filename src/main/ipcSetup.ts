@@ -43,22 +43,23 @@ export function ipcSetup() {
 		updateDisplaySize(arg);
 	})
 	var updateRecordDataTimer: NodeJS.Timeout | null = null;
-	ipcMain.on("request-change-max-group-gap-seconds", (e, arg) => {
-		updateMaxGroupGapSeconds(arg);
+	function refreshRecordData() {
 		if(updateRecordDataTimer)clearTimeout(updateRecordDataTimer)
 		updateRecordDataTimer = setTimeout(() => {
 			mainWindow.webContents.send('update-record-data', searchRecordData());
 		},500)
+	}
+	ipcMain.on("request-change-max-group-gap-seconds", (e, arg) => {
+		updateMaxGroupGapSeconds(arg);
+		refreshRecordData();
 	})
 	ipcMain.on("request-change-max-group-count", (e, arg) => {
 		updateMaxGoupCount(arg);
-		if(updateRecordDataTimer)clearTimeout(updateRecordDataTimer)
-		updateRecordDataTimer = setTimeout(() => {
-			mainWindow.webContents.send('update-record-data', searchRecordData());
-		},500)
+		refreshRecordData();
 	})
 	ipcMain.on("request-change-auto-sort", (e, arg) => {
 		updateAutoSort(arg);
+		refreshRecordData();
 	})
 	ipcMain.on("request-change-auto-refresh", (e, arg) => {
 		updateAutoRefresh(arg);

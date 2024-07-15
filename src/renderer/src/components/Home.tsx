@@ -61,6 +61,11 @@ export default function Home({ curDir }: Props) {
 				originTarget.src = detailImg.src;
 			}
 
+			// setTimeout(() => {
+			// 	originImgClientRects = originTarget.getClientRects()[0];
+			// 	detailImg.style.cssText = `left:${originImgClientRects.left}px;top:${originImgClientRects.top}px;width:${originImgClientRects.width}px;height:${originImgClientRects.height}px;`;
+			// }, 50)
+
 			setTimeout(() => {
 				if (detailImg.src !== emptySrc)
 					originTarget.src = detailImg.src;
@@ -124,7 +129,7 @@ export default function Home({ curDir }: Props) {
 					handleDetailWinOpen(e.target.children[1] as HTMLImageElement, false)
 				}} >
 					<div className={`w-full h-full backdrop-blur-2xl transition-all duration-500 ${detailWinOpen ? 'opacity-50' : 'opacity-0'}`} style={{ backgroundColor: 'rgb(0,0,0)' }}></div>
-					<img id="detailImg" src={emptySrc} alt="" className="rounded-2xl fixed object-cover transition-all duration-500" onClick={(e) => handleDetailWinOpen(e.target as HTMLImageElement, false)} />
+					<img id="detailImg" src={emptySrc} alt="" className="rounded-xl fixed object-cover transition-all duration-500" onClick={(e) => handleDetailWinOpen(e.target as HTMLImageElement, false)} />
 				</div>
 			</div >
 		</>

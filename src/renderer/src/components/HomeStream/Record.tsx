@@ -1,8 +1,9 @@
 import { CheckCircleOutline, CheckCircleRounded } from "@mui/icons-material";
-import { Checkbox } from "@mui/material";
+import { Checkbox, FormControlLabel } from "@mui/material";
 import { useState, useEffect } from "react"
 
 type RecordData = {
+	index: number,
 	curDir: string,
 	displaySize: number,
 	handleDetailWinOpen: (e: HTMLImageElement, detailWinOpen: boolean) => void,
@@ -13,7 +14,7 @@ type RecordData = {
 	}
 }
 
-export default function Record({ curDir, displaySize, handleDetailWinOpen, checkGroupAllChecked, RecordData }: RecordData) {
+export default function Record({ index, curDir, displaySize, handleDetailWinOpen, checkGroupAllChecked, RecordData }: RecordData) {
 	const [checked, setChecked] = useState(RecordData.checked);
 	// !艹必须要用state…………不然React不会刷新的…………
 
@@ -27,12 +28,15 @@ export default function Record({ curDir, displaySize, handleDetailWinOpen, check
 							<div className="w-full h-full absolute bg-gradient-to-t from-gray-700 to-gray-300 opacity-30"></div>
 							{RecordData.name.match(/(?<=Screenshot )\d{4}.\d{2}.\d{2} - \d{2}.\d{2}.\d{2}(?=.\d{2}.png)/)}
 						</div>
-						<Checkbox checked={checked} onChange={e => {
-							setChecked(e.target.checked);
-							checkGroupAllChecked();
-							window.electron.ipcRenderer.send('request-update-renaming-record', { name: RecordData.name, checked: e.target.checked });
-
-						}} icon={<CheckCircleOutline />} checkedIcon={<CheckCircleRounded />} sx={{ bottom: '5px', right: '5px', position: 'absolute', boxShadow: '0px 0px 20px rgba(0,0,0,0.5)' }} />
+						<FormControlLabel
+							label={`label${index}`}
+							control={
+								<Checkbox checked={checked} onChange={e => {
+									setChecked(e.target.checked);
+									checkGroupAllChecked();
+									window.electron.ipcRenderer.send('request-update-renaming-record', { name: RecordData.name, checked: e.target.checked });
+								}} icon={<CheckCircleOutline />} checkedIcon={<CheckCircleRounded />} sx={{ bottom: '5px', right: '5px', position: 'absolute', boxShadow: '0px 0px 20px rgba(0,0,0,0.5)' }} />
+							} />
 					</>
 				}
 			</div>
