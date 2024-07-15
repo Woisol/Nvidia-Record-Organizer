@@ -1,5 +1,5 @@
 import {  BrowserWindow, ipcMain } from "electron";
-import { changeCurDir, getSetting, initSetting, searchRecordData, store, testData, updateAutoRefresh, updateAutoSort, updateDisplaySize, updateMaxGoupCount, updateMaxGroupGapSeconds, updateRenamineRecord } from "./dataProcess";
+import { changeCurDir, getRenameInfo, getSetting, initSetting, searchRecordData, store,  updateAutoRefresh, updateAutoSort, updateDisplaySize, updateMaxGoupCount, updateMaxGroupGapSeconds, updateRenamePreview, updateRenamineRecord } from "./dataProcess";
 import { mainWindow } from ".";
 import test from "node:test";
 import path from "node:path";
@@ -72,6 +72,13 @@ export function ipcSetup() {
 	}
 	ipcMain.on("request-update-renaming-record", (e, arg:renamingRecordData) => {
 		updateRenamineRecord(arg.name, arg.checked);
+	})
+	ipcMain.handle('request-init-rename-info', () => {
+		return getRenameInfo();
+	})
+	type renameProps = {renameScheme:string, game:string, message:string}
+	ipcMain.handle('request-update-rename-preview', (e, arg:renameProps) => {
+		return updateRenamePreview(arg.renameScheme,arg.game,arg.message);
 	})
 
 	//**----------------------------Window-----------------------------------------------------

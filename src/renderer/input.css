@@ -6,6 +6,21 @@
 	outline: 0;
 }
 
+/* !woq FT补全的！更加健壮！ */
+.hide-scrollbar {
+	overflow: auto;
+	/* 或者 overflow: scroll; */
+	scrollbar-width: none;
+	/* Firefox */
+	-ms-overflow-style: none;
+	/* IE 和 Edge */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+	display: none;
+	/* Chrome, Safari 和 Opera */
+}
+
 .titleBar {
 	-webkit-user-select: none;
 	user-select: none;

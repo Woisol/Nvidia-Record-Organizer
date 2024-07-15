@@ -19,7 +19,8 @@ type setting = {
 	maxGroupGapSeconds: number,
 	maxGroupCount: number,
 	autoSort: boolean,
-	autoRefresh: number
+	autoRefresh: number,
+	renameScheme: string
 }
 
 // export const testData: recordData = [
@@ -58,7 +59,7 @@ type setting = {
 
 export var store: ElectronStore;
 // !虽然可以export但是export出来的并没有定义…………所以还是在里面搞吧
-var curDir: string,displaySize: number,maxGroupGapSeconds: number, maxGroupCount: number,autoSort: boolean,autoRefresh: number;
+var curDir: string,displaySize: number,maxGroupGapSeconds: number, maxGroupCount: number,autoSort: boolean,autoRefresh: number,renameScheme:string = "";
 
 var renamingRecord: string[] = [];
 
@@ -102,7 +103,7 @@ export function initDefaultSetting() {
 		// @ts-ignore
 		store  = new res.default()// as ElectronStore<setting<string,any>> ;
 		// @ts-ignore
-		const displaySize = store.get('maxGroupGapSeconds');
+		const displaySize = store.get('renameScheme');
 		// !艹被坑惨了………………不能只是!！要用===undefined！
 		if (displaySize === undefined) {
 			const defaultSetting:setting = {
@@ -111,7 +112,8 @@ export function initDefaultSetting() {
 				maxGroupGapSeconds: 30,
 				maxGroupCount: 10,
 				autoSort: true,
-				autoRefresh: 5
+				autoRefresh: 5,
+				renameScheme:"{Game} {Date} {yyyy}-{MM}-{dd} {HH}:{mm}:{ss} {Message} ({index})"
 			}
 			// @ts-ignore
 			store.set(defaultSetting);
@@ -133,13 +135,16 @@ export function initSetting() {
 	autoSort = store.get('autoSort');
 	// @ts-ignore
 	autoRefresh = store.get('autoRefresh');
+	// @ts-ignore
+	renameScheme = store.get('renameScheme');
 	const initSetting :setting = {
 		curDir:curDir,
 		displaySize: displaySize,
 		maxGroupGapSeconds: maxGroupCount,
 		maxGroupCount: maxGroupCount,
 		autoSort: autoSort,
-		autoRefresh: autoRefresh
+		autoRefresh: autoRefresh,
+		renameScheme:renameScheme
 	}
 	console.log("initSetting", initSetting)
 	// td整合掉……
@@ -156,7 +161,8 @@ export function getSetting() :setting{
 		maxGroupGapSeconds: maxGroupGapSeconds,
 		maxGroupCount: maxGroupCount,
 		autoSort: autoSort,
-		autoRefresh: autoRefresh
+		autoRefresh: autoRefresh,
+		renameScheme:renameScheme
 	}
 	return curSetting;
 }
@@ -171,16 +177,21 @@ export function changeCurDir():string | undefined {
 }
 
 //**----------------------------Record Data-----------------------------------------------------
+function resolveTimeFromFileName(file: string):[hour:number, min:number, sec:number] {
+	const hourRegex = /(?<=Screenshot \d{4}.\d{2}.\d{2} - )\d{2}(?=.\d{2}.\d{2}.\d{2}.png)/;
+	const minRegex = /(?<=Screenshot \d{4}.\d{2}.\d{2} - \d{2}.)\d{2}(?=.\d{2}.\d{2}.png)/;
+	const secondRegex = /(?<=Screenshot \d{4}.\d{2}.\d{2} - \d{2}.\d{2}.)\d{2}(?=.\d{2}.png)/;
+	return [Number(file.match(hourRegex)?.[0]),Number(file.match(minRegex)?.[0]),Number(file.match(secondRegex)?.[0])]
+}
+
+const gameNameRegex = /^.*(?= Screenshot)/;
+var game: string | undefined, testFileName: string;
 export function searchRecordData(): recordData | null  {
 	const fs = require('fs');
 	const res = fs.readdirSync(curDir)
 	res.sort();
 	const recordRegex = /^.* Screenshot \d{4}.\d{2}.\d{2} - \d{2}.\d{2}.\d{2}.\d{2}.png$/;
-	const gameNameRegex = /^.*(?= Screenshot)/;
 	// const dayRegex = /(?<=Screenshot \d{4}.\d{2}.)\d{2}(?= - \d{2}.\d{2}.\d{2}.\d{2}.png)/;
-	const hourRegex = /(?<=Screenshot \d{4}.\d{2}.\d{2} - )\d{2}(?=.\d{2}.\d{2}.\d{2}.png)/;
-	const minRegex = /(?<=Screenshot \d{4}.\d{2}.\d{2} - \d{2}.)\d{2}(?=.\d{2}.\d{2}.png)/;
-	const secondRegex = /(?<=Screenshot \d{4}.\d{2}.\d{2} - \d{2}.\d{2}.)\d{2}(?=.\d{2}.png)/;
 	const files = res.filter((file, index) => file.endsWith('.png') && (!autoSort || recordRegex.test(file)));
 
 	if (files.length === 0) {
@@ -188,7 +199,8 @@ export function searchRecordData(): recordData | null  {
 		return [];
 	}
 	// const gameName = gameNameRegex.exec(files[0])?.[1];
-	const game = files[0].match(gameNameRegex)?.[0];
+	game = files[0].match(gameNameRegex)?.[0];
+	testFileName = files[0];
 	// !额区分………………exec返回匹配项以外的更多信息，而且用来调用的对象不同
 	if (!game) { console.error("无法获取游戏名称"); }
 
@@ -206,9 +218,10 @@ export function searchRecordData(): recordData | null  {
 
 	var lastHour = 0, lastMin = 0, lastSecond = 0;
 	// lastDay = Number(files[0].match(dayRegex)?.[0]);
-	lastHour = Number(files[0].match(hourRegex)?.[0]);
-	lastMin = Number(files[0].match(minRegex)?.[0]);
-	lastSecond = Number(files[0].match(secondRegex)?.[0]);
+	// lastHour = Number(files[0].match(hourRegex)?.[0]);
+	// lastMin = Number(files[0].match(minRegex)?.[0]);
+	// lastSecond = Number(files[0].match(secondRegex)?.[0]);
+	[lastHour, lastMin, lastSecond] = resolveTimeFromFileName(files[0]);
 	var lastTimeSeconds = lastHour * 3600 + lastMin * 60 + lastSecond;
 
 	var curHour = 0, curMin = 0, curSecond = 0;
@@ -219,7 +232,7 @@ export function searchRecordData(): recordData | null  {
 	// !不对…………20也掉…………关键在于内存（）
 	if (maxGroupGapSeconds == 0) {
 		for (; fileIndex < files.length && fileIndex < maxMemberNum; fileIndex++) {
-			fileGroup .push(files[fileIndex]);
+			fileGroup.push(files[fileIndex]);
 		}
 		recordData.push({
 			dateTitle: "From " + formatDateTitle(fileGroup[0], lastHour,lastMin) + " [undivided]",
@@ -230,9 +243,10 @@ export function searchRecordData(): recordData | null  {
 		for (let i = 0; i < maxGroupCount && fileIndex < files.length;fileIndex++) {
 			// !嗯这里不需要…………只要不太集中不会卡的……&& fileIndex < maxMemberNum * 2
 			// curDay = Number(files[fileIndex].match(dayRegex)?.[0]);
-			curHour = Number(files[fileIndex].match(hourRegex)?.[0]);
-			curMin = Number(files[fileIndex].match(minRegex)?.[0]);
-			curSecond = Number(files[fileIndex].match(secondRegex)?.[0]);
+			// curHour = Number(files[fileIndex].match(hourRegex)?.[0]);
+			// curMin = Number(files[fileIndex].match(minRegex)?.[0]);
+			// curSecond = Number(files[fileIndex].match(secondRegex)?.[0]);
+			[curHour, curMin, curSecond] = resolveTimeFromFileName(files[fileIndex]);
 			var curTimeSeconds = curHour * 3600 + curMin * 60 + curSecond;
 			if(curHour - lastHour === -23) lastTimeSeconds -= 86400;
 			// !不想用Date了，绕路！……
@@ -276,4 +290,104 @@ export function updateRenamineRecord(name: string, add: boolean ){
 		}
 	}
 	console.log("renamingRecord:", renamingRecord);
+}
+//**----------------------------Rename Process-----------------------------------------------------
+type renameInfo = {
+	selectNum: number,
+	maxGapSeconds: number,
+	renameScheme: string,
+	game: string,
+	message: string,
+	instance:string
+}
+function resolveDateFromFileName(file: string): [date: string, year: string, month: string, day: string] {
+	const yearRegex = /(?<=Screenshot )\d{4}(?=.\d{2}.\d{2} - \d{2}.\d{2}.\d{2}.\d{2}.png)/;
+	const monthRegex = /(?<=Screenshot \d{4}.)\d{2}(?=.\d{2} - \d{2}.\d{2}.\d{2}.\d{2}.png)/;
+	const dayRegex = /(?<=Screenshot \d{4}.\d{2}.)\d{2}(?= - \d{2}.\d{2}.\d{2}.\d{2}.png)/;
+
+	const year = file.match(yearRegex)?.[0];
+	const month = file.match(monthRegex)?.[0];
+	const day = file.match(dayRegex)?.[0];
+	if(!year ||!month || !day)return ["", "", "", ""]
+	const date = year + "." + month + "." + day;
+	return [date, year, month, day];
+}
+
+function getMaxGapSeconds():number {
+	var maxGapSeconds = 0;
+	var lastHour = 0, lastMin = 0, lastSecond = 0;
+	// lastDay = Number(files[0].match(dayRegex)?.[0]);
+	// lastHour = Number(files[0].match(hourRegex)?.[0]);
+	// lastMin = Number(files[0].match(minRegex)?.[0]);
+	// lastSecond = Number(files[0].match(secondRegex)?.[0]);
+	[lastHour, lastMin, lastSecond] = resolveTimeFromFileName(renamingRecord.length > 0 ? renamingRecord[0] : testFileName);
+	// !？？？这里为什么会传入undefind的？？咳咳艹哈哈哈哈忘记重新编译了你…………
+	var lastTimeSeconds = lastHour * 3600 + lastMin * 60 + lastSecond;
+
+	var curHour = 0, curMin = 0, curSecond = 0;
+	// var foremostTimeSeconds:number = lastTimeSeconds;
+	// !艹遇到性能问题了哈哈从一开始的100降到50到现在20动画才不会掉帧…………
+	// !不对…………20也掉…………关键在于内存（）
+	for (const file of renamingRecord) {
+		[curHour, curMin, curSecond] = resolveTimeFromFileName(file);
+		var curTimeSeconds = curHour * 3600 + curMin * 60 + curSecond;
+		if (curHour - lastHour === -23) lastTimeSeconds -= 86400;
+		maxGapSeconds = Math.max(maxGapSeconds, Math.abs(curTimeSeconds - lastTimeSeconds));
+
+		lastTimeSeconds = curTimeSeconds;
+	}
+	return maxGapSeconds;
+}
+
+// ~~似乎用不了…………用不了就算…………
+// !虽然ts报错但是是可以用的！
+// @ts-ignore
+String.prototype.replaceVariable = function (variable: string, value: string) {
+	const regex = new RegExp(`\{${variable}\}`,'gi');
+	// const res = this.replace(regex, value);
+	// console.log(res);
+	return this.replace(regex, value);
+}
+function getRenamed(originName:string,renameScheme: string,game: string, message: string,index:number) {
+	var date:string, year:string,month:string,day:string, hour: number, min: number, sec: number;
+	[date, year, month, day] = resolveDateFromFileName(originName);
+	[hour, min, sec] = resolveTimeFromFileName(originName);
+	// !from FT:
+	// !算了这个语法看不懂先不用先自己实现一个……
+	// function replaceVariable( params: { [key: string]: string }) {
+	// 	return renameScheme.replace(/{(\w+)}/gi, (match, key) => params[key] || match);
+	// }
+	// @ts-ignore
+	var renamed = renameScheme.replaceVariable("date", date).replaceVariable("yyyy", year).replaceVariable("MM", month).replaceVariable("dd", day)
+	.replaceVariable("HH", hour).replaceVariable("mm", min).replaceVariable("ss", sec).replaceVariable("game", game).replaceVariable("message", message).replaceVariable("index", index.toString());
+	// function replaceVariables(variable: string[], value: string[]) {
+	// 	for(let i = 0; i < variable.length; i++) {
+	// 		console.log(renameScheme.replace(`/{${variable[i]}}/gi`, value[i]))
+	// 		renameScheme = renameScheme.replace(`/{${variable[i]}}/gi`, value[i]);
+	// 	}
+	// 	return renameScheme
+	// }
+	// const res = replaceVariable({  ["date"] : date, ["yyyy"] : year, ["MM"] : month, ["dd"] : day, ["HH"] : hour.toString().padStart(2, "0"), ["mm"] : min.toString().padStart(2, "0"), ["ss"] : sec.toString().padStart(2, "0"), ["game"] : game as string, ["message"] : message , ["index"] : index.toString() });
+	// !注意js里面String是值传递…………
+	// return replaceVariables(["date", "yyyy", "MM", "dd", "HH", "mm", "ss", "game", "message", "index"], [date, year, month, day, hour.toString().padStart(2, "0"), min.toString().padStart(2, "0"), sec.toString().padStart(2, "0"), game as string, message, index.toString()]);
+	return renamed;
+}
+export function getRenameInfo() {
+	const renameInfo: renameInfo = {
+		selectNum: renamingRecord.length,
+		maxGapSeconds: getMaxGapSeconds(),
+		renameScheme: renameScheme,
+		game: (game as string),
+		message:"",
+		instance:getRenamed((renamingRecord.length > 0 ? renamingRecord[0] : testFileName), renameScheme, game as string, "",1)
+	}
+	return renameInfo;
+}
+export function updateRenamePreview(rScheme:string, game:string, message:string) {
+	if (rScheme !== renameScheme) {
+		// @ts-ignore
+		store.set("renameScheme", rScheme);
+		renameScheme = rScheme;
+	}
+	return getRenamed((renamingRecord.length > 0 ? renamingRecord[0] : testFileName), rScheme,game, message,1);
 }
