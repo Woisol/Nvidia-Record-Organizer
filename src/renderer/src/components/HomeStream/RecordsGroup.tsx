@@ -17,7 +17,7 @@ export default function RecordsGroup({ index, curDir, displaySize, handleDetailW
 	// !额艹这个key是读不到的…………
 	const [indeterminate, setIndeterminate] = useState(false)
 	const [groupAllChecked, setGroupAllChecked] = useState(false)
-	const thisRecordGroup = document.getElementById(`records-group-${index}`) as HTMLDivElement;
+	var thisRecordGroup = document.getElementById(`records-group-${index}`) as HTMLDivElement;
 	function checkGroupAllChecked() {
 		// for (let i = /0; i < thisRecordGroup?.children.length; i++) {
 		var isAllChecked = true, isIndeterminate = false;
@@ -50,6 +50,7 @@ export default function RecordsGroup({ index, curDir, displaySize, handleDetailW
 							<Checkbox checked={groupAllChecked} indeterminate={indeterminate} onChange={e => {
 								setGroupAllChecked(e.target.checked);
 								// console.log(thisRecordGroup);
+								if (!thisRecordGroup) thisRecordGroup = document.getElementById(`records-group-${index}`) as HTMLDivElement;
 								for (let i = 0; i < thisRecordGroup.children.length; i++) {
 									// for (const child of thisRecordGroup.children){
 									const checkbox = (thisRecordGroup.children[i].children[2].children[0].children[0] as HTMLInputElement)

@@ -7,7 +7,20 @@ function App(): JSX.Element {
   const [curDir, setCurDir] = useState("");
   // @ts-ignore
   useEffect(() => { window.store.get('curDir').then(res => setCurDir(res)) }, [])
-  window.electron.ipcRenderer.on('update-cur-dir', (event, arg) => { setCurDir(arg) });
+  window.electron.ipcRenderer.on('update-cur-dir', (event, arg) => {
+    setCurDir(arg);
+    let curRecordGroup: HTMLDivElement | null;
+    for (let i = 0; ; i++) {
+      curRecordGroup = document.getElementById(`records-group-${i}`) as HTMLDivElement;
+      if (!curRecordGroup) break;
+      for (const child of curRecordGroup.children) {
+        const checkbox = (child.children[2].children[0].children[0] as HTMLInputElement)
+        if (checkbox.checked === true) {
+          checkbox.click();
+        }
+      }
+    }
+  });
 
   return (
     <Routes >

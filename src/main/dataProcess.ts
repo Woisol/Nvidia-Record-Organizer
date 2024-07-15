@@ -164,6 +164,7 @@ export function getSetting() :setting{
 export function changeCurDir():string | undefined {
 	const res = dialog.showOpenDialogSync(mainWindow, { buttonLabel: '选择文件夹', properties: ["openDirectory"], defaultPath: app.getPath("videos"), message: "请选择需要整理回放的目录。" })
 	if (!res) return;
+	renamingRecord = [];
 	updateCurDir(res[0]);
 	// @ts-ignore
 	return store.get('curDir');
