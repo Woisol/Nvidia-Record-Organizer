@@ -6,13 +6,14 @@ type RecordData = {
 	curDir: string,
 	displaySize: number,
 	handleDetailWinOpen: (e: HTMLImageElement, detailWinOpen: boolean) => void,
+	checkGroupAllChecked: () => void,
 	RecordData: {
 		name: string,
 		checked: boolean
 	}
 }
 
-export default function Record({ curDir, displaySize, handleDetailWinOpen, RecordData }: RecordData) {
+export default function Record({ curDir, displaySize, handleDetailWinOpen, checkGroupAllChecked, RecordData }: RecordData) {
 	const [checked, setChecked] = useState(RecordData.checked);
 	// !艹必须要用state…………不然React不会刷新的…………
 
@@ -28,6 +29,7 @@ export default function Record({ curDir, displaySize, handleDetailWinOpen, Recor
 						</div>
 						<Checkbox checked={checked} onChange={e => {
 							setChecked(e.target.checked);
+							checkGroupAllChecked();
 							window.electron.ipcRenderer.send('request-update-renaming-record', { name: RecordData.name, checked: e.target.checked });
 
 						}} icon={<CheckCircleOutline />} checkedIcon={<CheckCircleRounded />} sx={{ bottom: '5px', right: '5px', position: 'absolute', boxShadow: '0px 0px 20px rgba(0,0,0,0.5)' }} />
