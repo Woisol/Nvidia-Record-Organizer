@@ -391,3 +391,7 @@ export function updateRenamePreview(rScheme:string, game:string, message:string)
 	}
 	return getRenamed((renamingRecord.length > 0 ? renamingRecord[0] : testFileName), rScheme,game, message,1);
 }
+
+export function renameMainProcess(renameScheme: string, game: string, message: string) {
+
+}

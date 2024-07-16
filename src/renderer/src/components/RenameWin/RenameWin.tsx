@@ -42,18 +42,11 @@ export default function RenameWin({ renamineWinOpen, setRenamineWinOpen, firstFi
 				<div className={`${renamineWinOpen ? 'w-[400px]' : 'w-14'} h-14 absolute right-0 flex`}>
 					<button className={`w-[200px] h-14 rounded-l-2xl bg-gray-300 ${renamineWinOpen ? '' : 'hidden'}`} onClick={() => { setRenamineWinOpen(false) }}>取消</button>
 					<button className={`${renamineWinOpen ? 'w-[200px] duration-100 rounded-r-2xl ' : 'w-14 duration-500 rounded-2xl'} disabled:text-gray-400 disabled:bg-gray-300 disabled:active:bg-gray-300 h-14 bg-blue-400 active:bg-blue-500 ring-0 transition-all `} title='Confirm' disabled={renamineWinOpen && (selectNum === 0 || renameScheme === '')} onClick={() => {
-						setRenamineWinOpen(!renamineWinOpen)
-						window.electron.ipcRenderer.invoke("request-init-rename-info").then((renameInfo: renameInfo) => {
-							// !艹本来想偷懒复用的哈哈………………………………但是自然就又输入不了了…………
-							setSelectNum(renameInfo.selectNum)
-							setMaxGapSeconds(renameInfo.maxGapSeconds)
-							setRenameScheme(renameInfo.renameScheme)
-							setGame(renameInfo.game)
-							originGameName = renameInfo.game;
-							setMessage(renameInfo.message)
-							setInstance(renameInfo.instance)
-						})
-						setTimeout(() => {
+						if (renamineWinOpen) {
+
+						}
+						else {
+							setRenamineWinOpen(!renamineWinOpen)
 							window.electron.ipcRenderer.invoke("request-init-rename-info").then((renameInfo: renameInfo) => {
 								// !艹本来想偷懒复用的哈哈………………………………但是自然就又输入不了了…………
 								setSelectNum(renameInfo.selectNum)
@@ -64,7 +57,19 @@ export default function RenameWin({ renamineWinOpen, setRenamineWinOpen, firstFi
 								setMessage(renameInfo.message)
 								setInstance(renameInfo.instance)
 							})
-						}, 1000)
+							setTimeout(() => {
+								window.electron.ipcRenderer.invoke("request-init-rename-info").then((renameInfo: renameInfo) => {
+									// !艹本来想偷懒复用的哈哈………………………………但是自然就又输入不了了…………
+									setSelectNum(renameInfo.selectNum)
+									setMaxGapSeconds(renameInfo.maxGapSeconds)
+									setRenameScheme(renameInfo.renameScheme)
+									setGame(renameInfo.game)
+									originGameName = renameInfo.game;
+									setMessage(renameInfo.message)
+									setInstance(renameInfo.instance)
+								})
+							}, 1000)
+						}
 						// !防止在组全选的过程中数据变化…………
 					}}>
 						{renamineWinOpen ? '确认' : <Check style={{ width: '30px', height: '30px' }} />}
@@ -77,7 +82,7 @@ export default function RenameWin({ renamineWinOpen, setRenamineWinOpen, firstFi
 						<div className="w-full h-14 bg-white"></div>
 						<div className="w-full h-[544px] p-10 bg-white text-xl">
 							<p className='w-full relative my-2 mt-3'><b>选中数量：</b><span className="absolute right-0">{selectNum}个</span></p>
-							<p className='w-full relative my-2'><b>最长间隔时间：</b><span className="absolute right-0">{`${Math.floor(maxGapSeconds % 86400 / 3600) === 0 ? '' : `${(maxGapSeconds % 86400 / 3600).toFixed(1)}h `}${(maxGapSeconds % 3600 / 60).toFixed(1)}min ${maxGapSeconds % 60}s`}</span></p>
+							<p className='w-full relative my-2'><b>最长间隔时间：</b><span className="absolute right-0">{`${Math.floor(maxGapSeconds % 86400 / 3600) === 0 ? '' : `${(maxGapSeconds % 86400 / 3600).toFixed(1)}h `}${Math.floor(maxGapSeconds % 3600 / 60) === 0 ? '' : `${(maxGapSeconds % 3600 / 60).toFixed(0)}min `}${maxGapSeconds % 60}s`}</span></p>
 							<p className='my-2'></p>
 							<b>改名方案：</b><div className="text-xs text-gray-400">{'(支持{Game},{Date},{yyyy},{MM},{dd},{HH},{mm},{ss},{Message},{Index}等变量)'}</div>
 							<textarea className='w-full mb-4 border-b-2 border-gray-500 text-sm hide-scrollbar' title='renaming scheme' value={renameScheme} onChange={(e) => { const value = e.target.value; setRenameScheme(value); updateRenamePreview(value, game, message); }} />
