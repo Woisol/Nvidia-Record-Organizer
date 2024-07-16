@@ -80,6 +80,9 @@ export function ipcSetup() {
 	ipcMain.handle('request-update-rename-preview', (e, arg:renameProps) => {
 		return updateRenamePreview(arg.renameScheme,arg.game,arg.message);
 	})
+	ipcMain.on('request-rename-process', (e, arg) => {
+		setTimeout(() => {mainWindow.webContents.send('finish-rename-process',1)}, 2000)
+	})
 
 	//**----------------------------Window-----------------------------------------------------
 	var SettingWindow: BrowserWindow | null = null;

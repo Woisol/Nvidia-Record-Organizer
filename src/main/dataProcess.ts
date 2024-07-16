@@ -2,8 +2,6 @@ import { app, dialog } from 'electron'
 import path from 'path'
 import { mainWindow } from '.'
 import ElectronStore from 'electron-store'
-import { ConstructionTwoTone, ContactSupportOutlined, Flight, FormatOverline } from '@mui/icons-material'
-import { i } from 'vite/dist/node/types.d-aGj9QkWt'
 
 // !咳咳好像type不能export…………
 type recordGroupData =
@@ -393,5 +391,7 @@ export function updateRenamePreview(rScheme:string, game:string, message:string)
 }
 
 export function renameMainProcess(renameScheme: string, game: string, message: string) {
+	// return new Promise<void>((resolve, reject) => {
 
+	// })
 }

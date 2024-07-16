@@ -21,6 +21,8 @@ export default function RecordsGroup({ index, curDir, displaySize, handleDetailW
 	function checkGroupAllChecked() {
 		// for (let i = /0; i < thisRecordGroup?.children.length; i++) {
 		var isAllChecked = true, isIndeterminate = false;
+		if (!thisRecordGroup) thisRecordGroup = document.getElementById(`records-group-${index}`) as HTMLDivElement;
+		// !这里在刷新时有概率会访问undefind
 		for (const child of thisRecordGroup.children) {
 			const checkbox = (child.children[2].children[0].children[0] as HTMLInputElement)
 			if (checkbox.checked === true) {

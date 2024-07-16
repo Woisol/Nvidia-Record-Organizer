@@ -1,4 +1,4 @@
-import { Check } from "@mui/icons-material"
+import { Check, Refresh } from "@mui/icons-material"
 import rightArrow from '../../../../../resources/right-arrow.png'
 import { useState } from "react"
 
@@ -29,21 +29,35 @@ export default function RenameWin({ renamineWinOpen, setRenamineWinOpen, firstFi
 	const [game, setGame] = useState('');
 	const [message, setMessage] = useState('');
 	const [instance, setInstance] = useState('');
-
+	var [isRenameProcess, setIsRenameProcess] = useState(false);
+	// var isRenameProcess = false;
+	// ~~一样的！不涉及到渲染咳咳涉及到的……
 
 	function updateRenamePreview(renameScheme: string, game: string, message: string) {
 		window.electron.ipcRenderer.invoke("request-update-rename-preview", { renameScheme: renameScheme, game: game, message: message }).then((result: string) => { setInstance(result) })
 	}
+	window.electron.ipcRenderer.on('finish-rename-process', (e, arg) => {
+		if (arg === 1) {
+			setIsRenameProcess(false);
+		}
+	})
 	return (
 		<>
 			<div className={`w-full h-[calc(100vh-32px)] fixed left-0 top-8 z-30 backdrop-blur-2xl transition-all duration-500 ${renamineWinOpen ? 'opacity-50' : 'opacity-0 pointer-events-none'}`} style={{ backgroundColor: 'rgb(0,0,0)' }}></div>
 			{/* //!pointer-events-none的究极大补丁哈哈哈哈 */}
 			<div className={`${renamineWinOpen ? 'w-[400px] h-[600px] right-1/2 top-1/2 translate-x-1/2 -translate-y-1/2 ' : 'w-14 h-14 right-10 top-14 bg-white hover:scale-110 active:scale-90 '} fixed z-30 rounded-2xl shadow-2xl overflow-hidden transition-all duration-500 `}>
 				<div className={`${renamineWinOpen ? 'w-[400px]' : 'w-14'} h-14 absolute right-0 flex`}>
-					<button className={`w-[200px] h-14 rounded-l-2xl bg-gray-300 ${renamineWinOpen ? '' : 'hidden'}`} onClick={() => { setRenamineWinOpen(false) }}>取消</button>
-					<button className={`${renamineWinOpen ? 'w-[200px] duration-100 rounded-r-2xl ' : 'w-14 duration-500 rounded-2xl'} disabled:text-gray-400 disabled:bg-gray-300 disabled:active:bg-gray-300 h-14 bg-blue-400 active:bg-blue-500 ring-0 transition-all `} title='Confirm' disabled={renamineWinOpen && (selectNum === 0 || renameScheme === '')} onClick={() => {
+					<button className={`w-[200px] h-14 rounded-l-2xl bg-gray-300 ${renamineWinOpen && !isRenameProcess ? '' : 'hidden'}`} onClick={() => { setRenamineWinOpen(false) }}>取消</button>
+					<button className={`${renamineWinOpen ? `${isRenameProcess ? 'w-[400px] rounded-2xl' : 'w-[200px] rounded-r-2xl'} absolute right-0 duration-100 ` : 'w-14 duration-500 rounded-2xl'} disabled:text-gray-400 disabled:bg-gray-300 disabled:active:bg-gray-300 h-14 bg-blue-400 active:bg-blue-500 ring-0 transition-all `} title='Confirm' disabled={renamineWinOpen && (selectNum === 0 || renameScheme === '')} onClick={() => {
+						if (isRenameProcess) { console.error('double requet to rename process'); return; }
 						if (renamineWinOpen) {
+							setIsRenameProcess(true);
 
+							window.electron.ipcRenderer.send('request-rename-process', { renameScheme: renameScheme, game: game, message: message })
+							// 	.then(() => {
+							// 	setIsRenameProcess(false)
+							// 	// !!!艹注意invoke是阻塞的…………所以这里无法实现所谓加载重新渲染！
+							// })
 						}
 						else {
 							setRenamineWinOpen(!renamineWinOpen)
@@ -72,7 +86,8 @@ export default function RenameWin({ renamineWinOpen, setRenamineWinOpen, firstFi
 						}
 						// !防止在组全选的过程中数据变化…………
 					}}>
-						{renamineWinOpen ? '确认' : <Check style={{ width: '30px', height: '30px' }} />}
+						{renamineWinOpen ? (isRenameProcess ? <Refresh className="rotate" style={{ width: '40px', height: '40px' }} /> : '确认') : <Check style={{ width: '30px', height: '30px' }} />}
+						{/* //!服了是你自己逻辑错误怪人家React没有正确刷新isRenameProcess…………虽然console.log确实也错了但是实际运行时没问题的 */}
 					</button>
 				</div>
 				<div className="w-screen h-[544px] p-6 absolute -z-10 bg-blue-400"></div>
