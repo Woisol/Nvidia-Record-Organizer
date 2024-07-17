@@ -2,6 +2,11 @@ import { app, dialog } from 'electron'
 import path from 'path'
 import { mainWindow } from '.'
 import ElectronStore from 'electron-store'
+import * as fs from 'fs';
+import * as fsextra from 'fs-extra';
+import { exec } from 'child_process';
+// const fs= require('fs');
+// !艹注意要导入时@types/node才能有补全…………而且要用import
 
 // !咳咳好像type不能export…………
 type recordGroupData =
@@ -184,13 +189,18 @@ function resolveTimeFromFileName(file: string):[hour:number, min:number, sec:num
 
 const gameNameRegex = /^.*(?= Screenshot)/;
 var game: string | undefined, testFileName: string;
-export function searchRecordData(): recordData | null  {
-	const fs = require('fs');
+export function searchRecordData(): recordData  {
+	if (!fs.existsSync(curDir)) {
+		console.error('former store directory was deleted!');
+		// !注意加这个不然bug…………
+		// !额加了似乎也无法加载…………不能是null…………
+		return [];
+	}
 	const res = fs.readdirSync(curDir)
 	res.sort();
 	const recordRegex = /^.* Screenshot \d{4}.\d{2}.\d{2} - \d{2}.\d{2}.\d{2}.\d{2}.png$/;
 	// const dayRegex = /(?<=Screenshot \d{4}.\d{2}.)\d{2}(?= - \d{2}.\d{2}.\d{2}.\d{2}.png)/;
-	const files = res.filter((file, index) => file.endsWith('.png') && (!autoSort || recordRegex.test(file)));
+	const files = res.filter((file, index) =>  (!autoSort || recordRegex.test(file)));//file.endsWith('.png') &&
 
 	if (files.length === 0) {
 		console.error("当前目录下没有找到回放文件");
@@ -354,10 +364,12 @@ function getRenamed(originName:string,renameScheme: string,game: string, message
 	// !算了这个语法看不懂先不用先自己实现一个……
 	// function replaceVariable( params: { [key: string]: string }) {
 	// 	return renameScheme.replace(/{(\w+)}/gi, (match, key) => params[key] || match);
+	// !喔喔，FT：(match, key) => params[key] || match)箭头函数，指如果match中的字符串符合就hrig params[key]，不然就保留原来的match……
+	// !还是有点难理解这种语法…………好好消化一下
 	// }
 	// @ts-ignore
 	var renamed = renameScheme.replaceVariable("date", date).replaceVariable("yyyy", year).replaceVariable("MM", month).replaceVariable("dd", day)
-	.replaceVariable("HH", hour).replaceVariable("mm", min).replaceVariable("ss", sec).replaceVariable("game", game).replaceVariable("message", message).replaceVariable("index", index.toString());
+	.replaceVariable("HH", hour).replaceVariable("mm", min).replaceVariable("ss", sec).replaceVariable("game", game).replaceVariable("message", message).replaceVariable("index", index.toString()) + path.extname(originName);
 	// function replaceVariables(variable: string[], value: string[]) {
 	// 	for(let i = 0; i < variable.length; i++) {
 	// 		console.log(renameScheme.replace(`/{${variable[i]}}/gi`, value[i]))
@@ -391,7 +403,87 @@ export function updateRenamePreview(rScheme:string, game:string, message:string)
 }
 
 export function renameMainProcess(renameScheme: string, game: string, message: string) {
-	// return new Promise<void>((resolve, reject) => {
+	return new Promise<void>((resolve, reject) => {
+		if (renamingRecord.length === 0) {
+			reject("已经进行过一次改名操作了！");
+			return;
+			// !注意依然需要return！
+		}
+		renamingRecord.sort();
+		console.log('__dirname:', path.join(__dirname,renamingRecord[0]));
+		for (const fileName of renamingRecord) {
+			const oldPath = path.join(curDir,fileName);
+			// const oldPath = path.resolve(`${curDir}\\\\${fileName}`);
+			// const oldPath = `${curDir}\\${fileName}`;
+			// !搞错…………resolve似乎不行咳咳resolve也不是用来规范的…………也是可以用来解析.和..，但是也可以转相对路径为绝对路径……，normalize是解析.和..用的…………
+			if (fs.existsSync(oldPath)) {
+				const newPath = `${curDir}\\${getRenamed(fileName, renameScheme, game, message, renamingRecord.indexOf(fileName) + 1)}`;
+				// console.log("oldPath:", oldPath);
+				// const newPath = path.join(curDir,getRenamed(fileName, renameScheme, game, message, renamingRecord.indexOf(fileName) + 1)).replaceAll('\\', '/');
+				// fs.readFileSync(oldPath);
+				// fs.writeFileSync('D:/Code/FrontEnd/Mixed Projects/Nvidia Record Organizer/TestFile/test.txt', 'abc');
+				fs.rename(oldPath, newPath, (err) => {if(err) {console.error('err in rename main process:',err);} })
+				// fs.rename(oldPath, "./Minecraft Screenshot  NaN::NaN  (1).txt", (err) => { console.error('err in rename main process:',err); })
+				// !排除变量传参的问题
+				// fs.rename('D:\\Code\\FrontEnd\\Mixed Projects\\Nvidia Record Organizer\\TestFile\\Minecraft Screenshot 2024.07.15 - 22.08.55.03.png', 'D:\\Code\\FrontEnd\\Mixed Projects\\Nvidia Record Organizer\\TestFile\\Minecraft Screenshot 2024.07.15 22:07:55 10班联机 (9).png', (err) => { console.error('err in rename main process:',err); })
+				// fs.rename('D:\\Minecraft Screenshot 2024.07.15 - 21.13.33.60.png', 'D:\\Minecraft Screenshot 2024.07.15 Test.png', (err) => { console.error('err in rename main process:',err); })
+				// fs.rename("D:/Code/FrontEnd/Mixed Projects/Nvidia Record Organizer/TestFile/Minecraft Screenshot 2024.07.15 - 21.13.33.60.png", "D:/Code/FrontEnd/Mixed Projects/Nvidia Record Organizer/TestFile/Test.png", (err) => { console.error('err in rename main process:',err); })
+				// fs.renameSync('D:\\Code\\FrontEnd\\Mixed Projects\\Nvidia Record Organizer\\TestFile\\test.txt','D:\\Code\\FrontEnd\\Mixed Projects\\Nvidia Record Organizer\\TestFile\\test1.txt')
+				// fs.renameSync("D:\\Videos\\Test\\test.txt", "D:\\Videos\\Test\\test1.txt");
+				// !经实测\\和/都是可以的！
+				// fs.renameSync(fileName,getRenamed(fileName, renameScheme, game, message, renamingRecord.indexOf(fileName) + 1));
+				// !…………加了个file:\/\/就变成D:\Code\FrontEnd\Mixed Projects\Nvidia Record Organizer\file:\D:\...了…………
+				// !改了一堆路径格式都无效…………用了\,\\,\\\\,/但是其实最后报错输出的格式都是\，估计并不是path格式的问题
 
-	// })
+				// fsextra.move(oldPath, newPath, { overwrite: true }, (err) => {
+				// 	if (err) {
+				// 		console.error('err in rename main process:', err);
+				// 		reject(err);
+				// 	}
+				// })
+
+				// exec(`move "${oldPath}" "${newPath}"`, (err, stdout, stderr) => {
+				// 	console.log(`move "${oldPath}" "${newPath}"`);
+				// 	if (err) {
+				// 		console.error('err in rename main process:', err);
+				// 		reject(err);
+				// 	}
+				// });
+
+				// fs.copyFile(oldPath, newPath, (err) => {
+				// 	if (err) {
+				// 		console.error('err in rename main process:', err);
+				// 		reject(err);
+				// 	}
+				// 	else
+				// 		fs.unlink(oldPath, (err) => {
+				// 			if (err) {
+				// 				console.error('err in rename main process:', err);
+				// 				reject(err);
+				// 			}
+				// 		});
+				// })
+				// ~~基本定位问题…………命名不能太长…………一长就废……
+
+				/**
+				 * 鬼知道这个fs.rename搞了多久？？所以现在是为什么又可以跑起来了也搞不清楚啊啊啊啊啊啊
+				 * 开始的时候fs.rename一直报错找不到路径，期间换了\\, \\\\, /都是找不到路径
+				 * 后来发现不论上面三者哪个，报错的输出都是\\，因此基本排除是这个的问题
+				 * 后来因为尝试把oldPath和newPath换成常量目录发现得了，以为是不能用变量，但是尝试直接把二者的运行时值放进去也不行……
+				 * 考虑使用fsextra的move也不行
+				 * 再后来因为考虑到fs大概也是使用windows的cmd，所以尝试exec('move ...')依然不可行
+				 * 尝试在cmd环境下发现也不行
+				 * 此时才发现只有在所改的名字较短时才能修改成功
+				 * 于是尝试改名方案只剩下游戏，改名成功……此时是第一次成功改名
+				 * 同时似乎是在此前后发现gerRenamed的返回值没有拓展名，于是在函数体内加上
+				 * 然后惊讶地发现这个困扰了2天的问题居然解决了？？？？？？？？？
+				 * 最气人的是现在使用vsc的历史记录恢复了做完24点的文件，然后发现又能命名了？？？
+				 */
+			}
+			else {
+				console.error('attempt to rename non-existent file');
+			}
+		}
+		resolve();
+	})
 }

@@ -1,5 +1,5 @@
 import {  BrowserWindow, ipcMain } from "electron";
-import { changeCurDir, getRenameInfo, getSetting, initSetting, searchRecordData, store,  updateAutoRefresh, updateAutoSort, updateDisplaySize, updateMaxGoupCount, updateMaxGroupGapSeconds, updateRenamePreview, updateRenamineRecord } from "./dataProcess";
+import { changeCurDir, getRenameInfo, getSetting, initSetting, renameMainProcess, searchRecordData, store,  updateAutoRefresh, updateAutoSort, updateDisplaySize, updateMaxGoupCount, updateMaxGroupGapSeconds, updateRenamePreview, updateRenamineRecord } from "./dataProcess";
 import { mainWindow } from ".";
 import test from "node:test";
 import path from "node:path";
@@ -80,8 +80,12 @@ export function ipcSetup() {
 	ipcMain.handle('request-update-rename-preview', (e, arg:renameProps) => {
 		return updateRenamePreview(arg.renameScheme,arg.game,arg.message);
 	})
-	ipcMain.on('request-rename-process', (e, arg) => {
-		setTimeout(() => {mainWindow.webContents.send('finish-rename-process',1)}, 2000)
+	ipcMain.on('request-rename-process', (e, arg:renameProps) => {
+		// setTimeout(() => {mainWindow.webContents.send('finish-rename-process',1)}, 2000)
+		renameMainProcess(arg.renameScheme, arg.game, arg.message).then(() =>
+			// mainWindow.webContents.send('finish-rename-process', 1)
+			e.reply('finish-rename-process', 1)
+		)
 	})
 
 	//**----------------------------Window-----------------------------------------------------

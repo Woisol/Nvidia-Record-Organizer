@@ -26,6 +26,8 @@ if (process.contextIsolated) {
   window.electron = electronAPI
   // @ts-ignore
   window.store = store;
+  // @ts-ignore
+  window.fs = require('fs');
   console.log("preload without contextBridge");
 }
 
