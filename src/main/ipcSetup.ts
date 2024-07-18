@@ -40,7 +40,7 @@ export function ipcSetup() {
 	})
 
 	ipcMain.on("request-change-display-size", (e, arg) => {
-		updateDisplaySize(arg);
+		mainWindow.webContents.send('update-display-size', updateDisplaySize(arg));
 	})
 	var updateRecordDataTimer: NodeJS.Timeout | null = null;
 	function refreshRecordData() {

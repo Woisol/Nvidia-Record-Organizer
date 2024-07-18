@@ -5,6 +5,7 @@ import ElectronStore from 'electron-store'
 import * as fs from 'fs';
 import * as fsextra from 'fs-extra';
 import { exec } from 'child_process';
+import { NewReleases } from '@mui/icons-material';
 // const fs= require('fs');
 // !艹注意要导入时@types/node才能有补全…………而且要用import
 
@@ -62,7 +63,8 @@ type setting = {
 
 export var store: ElectronStore;
 // !虽然可以export但是export出来的并没有定义…………所以还是在里面搞吧
-var curDir: string,displaySize: number,maxGroupGapSeconds: number, maxGroupCount: number,autoSort: boolean,autoRefresh: number,renameScheme:string = "";
+export var curDir:string
+var displaySize: number,maxGroupGapSeconds: number, maxGroupCount: number,autoSort: boolean,autoRefresh: number,renameScheme:string = "";
 
 var renamingRecord: string[] = [];
 
@@ -73,11 +75,11 @@ function updateCurDir(newDir: string) {
 	mainWindow.webContents.send('update-cur-dir', curDir);
 	mainWindow.webContents.send('update-record-data', searchRecordData());
 }
-export function updateDisplaySize(size: number) {
+export function updateDisplaySize(size: number):number {
 	displaySize = size;
 	// @ts-ignore
 	store.set('displaySize', displaySize);
-	mainWindow.webContents.send('update-display-size', displaySize);
+	return displaySize;
 }
 export function updateMaxGroupGapSeconds(sec: number) {
 	maxGroupGapSeconds = sec;
@@ -173,7 +175,7 @@ export function getSetting() :setting{
 export function changeCurDir():string | undefined {
 	const res = dialog.showOpenDialogSync(mainWindow, { buttonLabel: '选择文件夹', properties: ["openDirectory"], defaultPath: app.getPath("videos"), message: "请选择需要整理回放的目录。" })
 	if (!res) return;
-	renamingRecord = [];
+	clearSelection();
 	updateCurDir(res[0]);
 	// @ts-ignore
 	return store.get('curDir');
@@ -238,14 +240,28 @@ export function searchRecordData(): recordData  {
 	const maxMemberNum = 25;
 	// !艹遇到性能问题了哈哈从一开始的100降到50到现在20动画才不会掉帧…………
 	// !不对…………20也掉…………关键在于内存（）
+	var newRenamingRecord: string[] = [];
 	if (maxGroupGapSeconds == 0) {
 		for (; fileIndex < files.length && fileIndex < maxMemberNum; fileIndex++) {
 			fileGroup.push(files[fileIndex]);
 		}
 		recordData.push({
 			dateTitle: "From " + formatDateTitle(fileGroup[0], lastHour,lastMin) + " [undivided]",
-			recordData: fileGroup.map(file => ({ name: file, checked: false }))
+			recordData: fileGroup.map(file => {
+				if (renamingRecord.includes(file)) {
+					newRenamingRecord.push(file);
+					return ({ name: file, checked: true })
+				}
+				else
+					return ({ name: file, checked: false })
+			})
 		})
+		// if (newRenamingRecord !== renamingRecord) {
+			// !永远返回true，比较的只是数组对象的引用
+		if(newRenamingRecord.length !== renamingRecord.length){
+			console.log("Some records was select but now not exist any more!");
+			renamingRecord = newRenamingRecord;
+		}
 	}
 	else {
 		for (let i = 0; i < maxGroupCount && fileIndex < files.length;fileIndex++) {
@@ -267,8 +283,19 @@ export function searchRecordData(): recordData  {
 				i++;
 				recordData.push({
 					dateTitle: formatDateTitle(fileGroup[0], lastHour,lastMin),
-					recordData: fileGroup.map(file => ({ name: file, checked: false }))
+					recordData: fileGroup.map(file => {
+						if (renamingRecord.includes(file)) {
+							newRenamingRecord.push(file);
+							return ({ name: file, checked: true })
+						}
+						else
+							return ({ name: file, checked: false })
+					})
 				})
+				if(newRenamingRecord.length !== renamingRecord.length){
+				console.log("Some records was select but now5 not exist any more!");
+				renamingRecord = newRenamingRecord;
+				}
 				fileGroup = [files[fileIndex]];
 			}
 			lastTimeSeconds = curTimeSeconds;
@@ -298,6 +325,10 @@ export function updateRenamineRecord(name: string, add: boolean ){
 		}
 	}
 	console.log("renamingRecord:", renamingRecord);
+}
+export function clearSelection() {
+	renamingRecord = [];
+	mainWindow.webContents.send('clear-selection');
 }
 //**----------------------------Rename Process-----------------------------------------------------
 type renameInfo = {
@@ -410,7 +441,6 @@ export function renameMainProcess(renameScheme: string, game: string, message: s
 			// !注意依然需要return！
 		}
 		renamingRecord.sort();
-		console.log('__dirname:', path.join(__dirname,renamingRecord[0]));
 		for (const fileName of renamingRecord) {
 			const oldPath = path.join(curDir,fileName);
 			// const oldPath = path.resolve(`${curDir}\\\\${fileName}`);
@@ -422,7 +452,12 @@ export function renameMainProcess(renameScheme: string, game: string, message: s
 				// const newPath = path.join(curDir,getRenamed(fileName, renameScheme, game, message, renamingRecord.indexOf(fileName) + 1)).replaceAll('\\', '/');
 				// fs.readFileSync(oldPath);
 				// fs.writeFileSync('D:/Code/FrontEnd/Mixed Projects/Nvidia Record Organizer/TestFile/test.txt', 'abc');
-				fs.rename(oldPath, newPath, (err) => {if(err) {console.error('err in rename main process:',err);} })
+				fs.rename(oldPath, newPath, (err) => {
+					if (err) { console.error('err in rename main process:', err); dialog.showErrorBox(`重命名失败${err.message}`, '可能是ts代码无法解决的系统问题，该问题在开发过程中稳定出现导致开发者头秃了一天。没有好的方法解决，请过了充足的一段时间以后再重试，或者更换其它更加成熟的软件。'); return; }
+					mainWindow.webContents.send('update-record-data', searchRecordData());
+					renamingRecord = [];
+					resolve();
+				})
 				// fs.rename(oldPath, "./Minecraft Screenshot  NaN::NaN  (1).txt", (err) => { console.error('err in rename main process:',err); })
 				// !排除变量传参的问题
 				// fs.rename('D:\\Code\\FrontEnd\\Mixed Projects\\Nvidia Record Organizer\\TestFile\\Minecraft Screenshot 2024.07.15 - 22.08.55.03.png', 'D:\\Code\\FrontEnd\\Mixed Projects\\Nvidia Record Organizer\\TestFile\\Minecraft Screenshot 2024.07.15 22:07:55 10班联机 (9).png', (err) => { console.error('err in rename main process:',err); })
@@ -484,6 +519,5 @@ export function renameMainProcess(renameScheme: string, game: string, message: s
 				console.error('attempt to rename non-existent file');
 			}
 		}
-		resolve();
 	})
 }

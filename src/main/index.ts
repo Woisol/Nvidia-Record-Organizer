@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { ipcSetup } from './ipcSetup'
 import { initDefaultSetting } from './dataProcess'
+import contextMenuSetup from './contextMenu'
 
 export var mainWindow: BrowserWindow;
 // export var settingWindow : BrowserWindow;
@@ -56,6 +57,7 @@ function createWindow(): void {
   }
 
   ipcSetup();
+  contextMenuSetup();
 }
 
 // This method will be called when Electron has finished

@@ -10,8 +10,8 @@ function App(): JSX.Element {
   useEffect(() => { window.store.get('curDir').then(res => setCurDir(res)) }, [])
   window.electron.ipcRenderer.on('update-cur-dir', (event, arg) => {
     setCurDir(arg);
-    clearSlection();
   });
+  window.electron.ipcRenderer.on('clear-selection', () => clearSlection())
 
   return (
     <Routes >

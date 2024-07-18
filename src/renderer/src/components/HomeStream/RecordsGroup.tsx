@@ -10,10 +10,10 @@ type recordData = {
 		dateTitle: string,
 		recordData: Array<{ name: string, checked: boolean }>
 	},
-	setRecordData: (value: recordData["recordData"]) => void
+	handleCleckBoxChecked: (name: string, checked: boolean) => void
 	// !来自eslint的规范
 }
-export default function RecordsGroup({ index, curDir, displaySize, handleDetailWinOpen, recordData, setRecordData }: recordData) {
+export default function RecordsGroup({ index, curDir, displaySize, handleDetailWinOpen, recordData, handleCleckBoxChecked }: recordData) {
 	// !额艹这个key是读不到的…………
 	const [indeterminate, setIndeterminate] = useState(false)
 	const [groupAllChecked, setGroupAllChecked] = useState(false)
@@ -68,7 +68,7 @@ export default function RecordsGroup({ index, curDir, displaySize, handleDetailW
 				</div>
 				<div id={`records-group-${index}`} className={`w-fit relative flex flex-wrap ${displaySize === 2 ? 'gap-4' : 'gap-3'}`}>
 					{recordData.recordData.map((item, index) => (
-						<Record key={index} index={index} curDir={curDir} displaySize={displaySize} handleDetailWinOpen={handleDetailWinOpen} checkGroupAllChecked={checkGroupAllChecked} RecordData={item} />
+						<Record key={index} index={index} curDir={curDir} displaySize={displaySize} handleDetailWinOpen={handleDetailWinOpen} checkGroupAllChecked={checkGroupAllChecked} RecordData={item} handleCleckBoxChecked={handleCleckBoxChecked} />
 					))}
 				</div>
 			</div>

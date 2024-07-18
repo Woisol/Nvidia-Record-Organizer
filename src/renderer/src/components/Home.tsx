@@ -8,16 +8,23 @@ var originTarget: HTMLImageElement, originImgClientRects: ClientRect, isReachCen
 type Props = {
 	curDir: string,
 }
+type recordGroupData =
+	{
+		dateTitle: string,
+		recordData: Array<{ name: string, checked: boolean }>
+	}
+type recordDataArray = [Array<recordGroupData>, () => void]
 
 export default function Home({ curDir }: Props) {
 	const [displaySize, setDisplaySize] = useState(1)
-	const [recordData, setRecordData] = useState([])
+	var [recordDataGroup, setRecordDataGroup] = useState([])
+	// : recordDataArray
 	const [detailWinOpen, setDetailWinOpen] = useState(false);
 	const [renamineWinOpen, setRenamineWinOpen] = useState(false);
 	// @ts-ignore
 	useEffect(() => { window.store.get("displaySize").then(res => setDisplaySize(res)) }, [])
 
-	window.electron.ipcRenderer.on('update-record-data', (events, arg) => { setRecordData(arg); console.log("render update-record-data ", arg) });
+	window.electron.ipcRenderer.on('update-record-data', (events, arg) => { setRecordDataGroup(arg); console.log("render update-record-data ", arg) });
 	window.electron.ipcRenderer.on('update-display-size', (events, arg) => { setDisplaySize(arg); console.log("Now Display in Size ", arg); })
 
 	function handleDetailWinOpen(target: HTMLImageElement, detailWinOpen: boolean) {
@@ -74,18 +81,49 @@ export default function Home({ curDir }: Props) {
 			}, 500)
 		}
 	}
+	function handleCleckBoxChecked(name: string, checked: boolean) {
+		// @ts-ignore
+		// setRecordDataGroup(recordDataGroup.map((recordDataGroup: recordGroupData) => {
+		// 	recordDataGroup.recordData.forEach((recordData) => recordData.name === name)
+		// }))
+
+		// setRecordDataGroup(recordDataGroup.map((recordDataGroup: recordGroupData) =>
+		// 	recordDataGroup.recordData.map((recordData) => {
+		// 		if (recordData.name === name) {
+		// 			recordData.checked = checked;
+		// 			return;
+		// 		}
+		// 	})
+		// )
+		// )
+		// !此方法一点就崩…………嗯新建一个变量也是一样的……关键在于map返回值格式变化了
+
+		const newRecordDataGroup = recordDataGroup.map((recordDataGroup: recordGroupData) => {
+			return ({
+				...recordDataGroup,
+				recordData: recordDataGroup.recordData.map((recordData) => {
+					if (recordData.name === name) {
+						recordData.checked = checked;
+					}
+					return recordData;
+				})
+			})
+		})
+		// @ts-ignore
+		setRecordDataGroup(newRecordDataGroup);
+	}
 	return (
 		<>
 			<TitleBar curDir={curDir} />
 			<div className="w-full h-[calc(100vh-32px)] px-5 py-4 relative overflow-y-scroll select-none flex flex-col">
-				{recordData.length === 0 ?
+				{recordDataGroup.length === 0 ?
 					<div className="w-fit h-24 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl">已经全部整理完啦❤️！</div>
 					// !woc！！！这！自己补全出来了tailwindcss的动画哈哈哈
 					:
 					<>
-						{recordData.map((recordData, index) => <RecordsGroup key={index} index={index} curDir={curDir} displaySize={displaySize} handleDetailWinOpen={handleDetailWinOpen} recordData={recordData} setRecordData={(value) => setRecordData(value)} />)}
+						{recordDataGroup.map((recordData, index) => <RecordsGroup key={index} index={index} curDir={curDir} displaySize={displaySize} handleDetailWinOpen={handleDetailWinOpen} recordData={recordData} handleCleckBoxChecked={handleCleckBoxChecked} />)}
 						<Button size='medium' variant='contained' style={{ width: '300px', marginLeft: 'auto', marginRight: 'auto' }} >加载更多</Button>
-						<RenameWin renamineWinOpen={renamineWinOpen} setRenamineWinOpen={setRenamineWinOpen} firstFileName={recordData[0].recordData[0].name} />
+						<RenameWin renamineWinOpen={renamineWinOpen} setRenamineWinOpen={setRenamineWinOpen} firstFileName={recordDataGroup[0].recordData[0].name} />
 					</>
 				}
 				<div className={`w-screen  h-[calc(100vh-32px)] fixed z-10 top-8 left-0 ${!detailWinOpen && 'pointer-events-none'}`} onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
