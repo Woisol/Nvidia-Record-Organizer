@@ -186,6 +186,9 @@ function resolveTimeFromFileName(file: string):[hour:number, min:number, sec:num
 	const hourRegex = /(?<=Screenshot \d{4}.\d{2}.\d{2} - )\d{2}(?=.\d{2}.\d{2}.\d{2}.png)/;
 	const minRegex = /(?<=Screenshot \d{4}.\d{2}.\d{2} - \d{2}.)\d{2}(?=.\d{2}.\d{2}.png)/;
 	const secondRegex = /(?<=Screenshot \d{4}.\d{2}.\d{2} - \d{2}.\d{2}.)\d{2}(?=.\d{2}.png)/;
+	// console.log(Number(file.match(hourRegex)?.[0]))
+	// console.log(Number(file.match(minRegex)?.[0]))
+	// console.log(Number(file.match(secondRegex)?.[0]))
 	return [Number(file.match(hourRegex)?.[0]),Number(file.match(minRegex)?.[0]),Number(file.match(secondRegex)?.[0])]
 }
 
@@ -293,7 +296,7 @@ export function searchRecordData(): recordData  {
 					})
 				})
 				if(newRenamingRecord.length !== renamingRecord.length){
-				console.log("Some records was select but now5 not exist any more!");
+				console.log("Some records was select but now not exist any more!");
 				renamingRecord = newRenamingRecord;
 				}
 				fileGroup = [files[fileIndex]];
@@ -382,12 +385,13 @@ function getMaxGapSeconds():number {
 // !虽然ts报错但是是可以用的！
 // @ts-ignore
 String.prototype.replaceVariable = function (variable: string, value: string) {
-	const regex = new RegExp(`\{${variable}\}`,'gi');
+	const regex = new RegExp(`\{${variable}\}`,'g');
+	// !艹…………………………不能忽略大小写不然{MM}和{mm}就混淆啦！！！
 	// const res = this.replace(regex, value);
 	// console.log(res);
 	return this.replace(regex, value);
 }
-function getRenamed(originName:string,renameScheme: string,game: string, message: string,index:number) {
+function getRenamed(originName:string,renameScheme: string,game: string, message: string,indexIfRepeat:number) {
 	var date:string, year:string,month:string,day:string, hour: number, min: number, sec: number;
 	[date, year, month, day] = resolveDateFromFileName(originName);
 	[hour, min, sec] = resolveTimeFromFileName(originName);
@@ -398,9 +402,19 @@ function getRenamed(originName:string,renameScheme: string,game: string, message
 	// !喔喔，FT：(match, key) => params[key] || match)箭头函数，指如果match中的字符串符合就hrig params[key]，不然就保留原来的match……
 	// !还是有点难理解这种语法…………好好消化一下
 	// }
-	// @ts-ignore
-	var renamed = renameScheme.replaceVariable("date", date).replaceVariable("yyyy", year).replaceVariable("MM", month).replaceVariable("dd", day)
-	.replaceVariable("HH", hour).replaceVariable("mm", min).replaceVariable("ss", sec).replaceVariable("game", game).replaceVariable("message", message).replaceVariable("index", index.toString()) + path.extname(originName);
+	// @ts-ignor
+	var renamed:string = renameScheme.replaceVariable("date", date).replaceVariable("yyyy", year).replaceVariable("MM", month).replaceVariable("dd", day)
+	.replaceVariable("HH", hour.toString().padStart(2,"0")).replaceVariable("mm", min.toString().padStart(2,"0")).replaceVariable("ss", sec.toString().padStart(2,"0")).replaceVariable("game", game).replaceVariable("message", message);
+	if (indexIfRepeat > 0) {
+		// @ts-ignore
+		var renamed:string = renamed.replaceVariable("indexIfRepeat", indexIfRepeat.toString())
+	}
+	else {
+		renamed = renamed.replace(/ (?=[([{<,.（【{《，。@#$%&*]*\{indexIfRepeat\})/g, '');
+		const regex = new RegExp(`\{indexIfRepeat\}`, 'g');
+		var renamed:string = renamed.replaceAll(regex, "");
+	}
+	renamed += path.extname(originName);
 	// function replaceVariables(variable: string[], value: string[]) {
 	// 	for(let i = 0; i < variable.length; i++) {
 	// 		console.log(renameScheme.replace(`/{${variable[i]}}/gi`, value[i]))
@@ -420,7 +434,7 @@ export function getRenameInfo() {
 		renameScheme: renameScheme,
 		game: (game as string),
 		message:"",
-		instance:getRenamed((renamingRecord.length > 0 ? renamingRecord[0] : testFileName), renameScheme, game as string, "",1)
+		instance:getRenamed((renamingRecord.length > 0 ? renamingRecord[0] : testFileName), renameScheme, game as string, "",0)
 	}
 	return renameInfo;
 }
@@ -430,7 +444,7 @@ export function updateRenamePreview(rScheme:string, game:string, message:string)
 		store.set("renameScheme", rScheme);
 		renameScheme = rScheme;
 	}
-	return getRenamed((renamingRecord.length > 0 ? renamingRecord[0] : testFileName), rScheme,game, message,1);
+	return getRenamed((renamingRecord.length > 0 ? renamingRecord[0] : testFileName), rScheme,game, message,0);
 }
 
 export function renameMainProcess(renameScheme: string, game: string, message: string) {
@@ -441,13 +455,30 @@ export function renameMainProcess(renameScheme: string, game: string, message: s
 			// !注意依然需要return！
 		}
 		renamingRecord.sort();
+		var indexIfRepeat = 0;
 		for (const fileName of renamingRecord) {
 			const oldPath = path.join(curDir,fileName);
 			// const oldPath = path.resolve(`${curDir}\\\\${fileName}`);
 			// const oldPath = `${curDir}\\${fileName}`;
 			// !搞错…………resolve似乎不行咳咳resolve也不是用来规范的…………也是可以用来解析.和..，但是也可以转相对路径为绝对路径……，normalize是解析.和..用的…………
 			if (fs.existsSync(oldPath)) {
-				const newPath = `${curDir}\\${getRenamed(fileName, renameScheme, game, message, renamingRecord.indexOf(fileName) + 1)}`;
+				var newPath = `${curDir}\\${getRenamed(fileName, renameScheme, game, message, indexIfRepeat)}`;
+				// !艹这个逻辑巨难艹
+				if (fs.existsSync(newPath)) {
+					// !这里new就是old（）
+					if (indexIfRepeat === 0)
+					fs.rename(newPath,`${curDir}\\${getRenamed(fileName, renameScheme, game, message, ++indexIfRepeat)}`,(err) => {
+						if (err) { console.error('err in rename main process:', err); dialog.showErrorBox(`重命名失败${err.message}`, '可能是ts代码无法解决的系统问题，该问题在开发过程中稳定出现导致开发者头秃了一天。没有好的方法解决，请过了充足的一段时间以后再重试，或者更换其它更加成熟的软件。'); return; }
+						mainWindow.webContents.send('update-record-data', searchRecordData());
+						renamingRecord = [];
+						resolve();
+					})
+					newPath = `${curDir}\\${getRenamed(fileName, renameScheme, game, message, ++indexIfRepeat)}`;
+				}
+				else {
+					indexIfRepeat = 0;
+					newPath = `${curDir}\\${getRenamed(fileName, renameScheme, game, message, indexIfRepeat)}`;
+				}
 				// console.log("oldPath:", oldPath);
 				// const newPath = path.join(curDir,getRenamed(fileName, renameScheme, game, message, renamingRecord.indexOf(fileName) + 1)).replaceAll('\\', '/');
 				// fs.readFileSync(oldPath);

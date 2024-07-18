@@ -39,6 +39,7 @@ export default function RenameWin({ renamineWinOpen, setRenamineWinOpen, firstFi
 	window.electron.ipcRenderer.on('finish-rename-process', (e, arg) => {
 		if (arg === 1) {
 			setIsRenameProcess(false);
+			setRenamineWinOpen(false);
 		}
 	})
 	return (
@@ -99,13 +100,14 @@ export default function RenameWin({ renamineWinOpen, setRenamineWinOpen, firstFi
 							<p className='w-full relative my-2 mt-3'><b>选中数量：</b><span className="absolute right-0">{selectNum}个</span></p>
 							<p className='w-full relative my-2'><b>最长间隔时间：</b><span className="absolute right-0">{`${Math.floor(maxGapSeconds % 86400 / 3600) === 0 ? '' : `${(maxGapSeconds % 86400 / 3600).toFixed(1)}h `}${Math.floor(maxGapSeconds % 3600 / 60) === 0 ? '' : `${(maxGapSeconds % 3600 / 60).toFixed(0)}min `}${maxGapSeconds % 60}s`}</span></p>
 							<p className='my-2'></p>
-							<b>改名方案：</b><div className="text-xs text-gray-400">{'(支持{Game},{Date},{yyyy},{MM},{dd},{HH},{mm},{ss},{Message},{Index}等变量)'}</div>
+							<b>改名方案：</b><div className="text-xs text-gray-400">{'(支持{game},{date},{yyyy},{MM},{dd},{HH},{mm},{ss},{message},{indexIfRepeat}等变量，区分大小写，其中{indexIfRepeat}如果不重复时会自动删去前面空格)'}</div>
 							<textarea className='w-full mb-4 border-b-2 border-gray-500 text-sm hide-scrollbar' title='renaming scheme' value={renameScheme} onChange={(e) => { const value = e.target.value; setRenameScheme(value); updateRenamePreview(value, game, message); }} />
 							<b>游戏名称{'{Game}'}：</b>
 							{/* // !呼FT乱来，这样就可以显示{ }了 */}
 							<input className='w-full mb-4 border-b-2 border-gray-500 text-center' title='game name' type="text" placeholder={game} onChange={(e) => { var value = e.target.value; if (value === '' && originGameName) value = originGameName; setGame(value); updateRenamePreview(renameScheme, value, message); }} />
 							<b>自定义信息{'{Message}'}</b>
-							<input className='w-full mb-4 border-b-2 border-gray-500 text-sm hide-scrollbar' title='massage' value={message} onChange={(e) => { const value = e.target.value; setMessage(value); updateRenamePreview(renameScheme, game, value); }} />
+							<textarea className='w-full mb-4 border-b-2 border-gray-500 text-sm hide-scrollbar' title='massage' value={message} onChange={(e) => { const value: string = e.target.value; if (value.endsWith('\n')) return; setMessage(value); updateRenamePreview(renameScheme, game, value); }} />
+							{/* //!无法使用whitespace禁止换行………… */}
 							<div className="w-[320px] absolute bottom-10 text-center">
 								<b>效果预览</b><div className="text-xs text-gray-400">（以第一个文件为例）：</div>
 								<div className="w-full h-14 px-2 bg-gray-200 rounded-2xl flex justify-center items-center">
