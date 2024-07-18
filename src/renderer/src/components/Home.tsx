@@ -126,12 +126,12 @@ export default function Home({ curDir }: Props) {
 			<TitleBar curDir={curDir} />
 			<div className="w-full h-[calc(100vh-32px)] px-5 py-4 relative overflow-y-scroll select-none flex flex-col">
 				{recordDataGroup.length === 0 ?
-					<div className="w-fit h-24 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl">已经全部整理完啦❤️！</div>
+					<div className="w-fit h-24 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl text-nowrap">已经全部整理完啦❤️！</div>
 					// !woc！！！这！自己补全出来了tailwindcss的动画哈哈哈
 					:
 					<>
 						{recordDataGroup.map((recordData, index) => <RecordsGroup key={index} index={index} curDir={curDir} displaySize={displaySize} handleDetailWinOpen={handleDetailWinOpen} recordData={recordData} handleCleckBoxChecked={handleCleckBoxChecked} />)}
-						<Button size='medium' variant='contained' style={{ width: '300px', marginLeft: 'auto', marginRight: 'auto' }} >加载更多</Button>
+						{/* <Button size='medium' variant='contained' style={{ width: '300px', marginLeft: 'auto', marginRight: 'auto' }} >加载更多</Button> */}
 						<RenameWin renamineWinOpen={renamineWinOpen} setRenamineWinOpen={setRenamineWinOpen} firstFileName={recordDataGroup[0].recordData[0].name} />
 					</>
 				}

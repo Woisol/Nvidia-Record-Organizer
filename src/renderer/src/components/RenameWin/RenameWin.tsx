@@ -98,7 +98,10 @@ export default function RenameWin({ renamineWinOpen, setRenamineWinOpen, firstFi
 						<div className="w-full h-14 bg-white"></div>
 						<div className="w-full h-[544px] p-10 bg-white text-xl">
 							<p className='w-full relative my-2 mt-3'><b>选中数量：</b><span className="absolute right-0">{selectNum}个</span></p>
-							<p className='w-full relative my-2'><b>最长间隔时间：</b><span className="absolute right-0">{`${Math.floor(maxGapSeconds % 86400 / 3600) === 0 ? '' : `${(maxGapSeconds % 86400 / 3600).toFixed(1)}h `}${Math.floor(maxGapSeconds % 3600 / 60) === 0 ? '' : `${(maxGapSeconds % 3600 / 60).toFixed(0)}min `}${maxGapSeconds % 60}s`}</span></p>
+							<p className='w-full relative mt-2'><b>最长间隔时间：</b><span className="absolute right-0">
+								{`${Math.floor(maxGapSeconds % 86400 / 3600) === 0 ? '' : `${(maxGapSeconds % 86400 / 3600).toFixed(1)}h `}${Math.floor(maxGapSeconds % 3600 / 60) === 0 ? '' : `${(maxGapSeconds % 3600 / 60).toFixed(0)}min `}${maxGapSeconds % 60}s`}</span>
+							</p>
+							<div className="text-xs text-gray-400">超过一天时该记录并不准确</div>
 							<p className='my-2'></p>
 							<b>改名方案：</b><div className="text-xs text-gray-400">{'(支持{game},{date},{yyyy},{MM},{dd},{HH},{mm},{ss},{message},{indexIfRepeat}等变量，区分大小写，其中{indexIfRepeat}如果不重复时会自动删去前面空格)'}</div>
 							<textarea className='w-full mb-4 border-b-2 border-gray-500 text-sm hide-scrollbar' title='renaming scheme' value={renameScheme} onChange={(e) => { const value = e.target.value; setRenameScheme(value); updateRenamePreview(value, game, message); }} />

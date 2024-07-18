@@ -203,7 +203,7 @@ export function searchRecordData(): recordData  {
 	}
 	const res = fs.readdirSync(curDir)
 	res.sort();
-	const recordRegex = /^.* Screenshot \d{4}.\d{2}.\d{2} - \d{2}.\d{2}.\d{2}.\d{2}.png$/;
+	const recordRegex = /^.* Screenshot \d{4}.\d{2}.\d{2} - \d{2}.\d{2}.\d{2}.\d{2,3}.png$/;
 	// const dayRegex = /(?<=Screenshot \d{4}.\d{2}.)\d{2}(?= - \d{2}.\d{2}.\d{2}.\d{2}.png)/;
 	const files = res.filter((file, index) =>  (!autoSort || recordRegex.test(file)));//file.endsWith('.png') &&
 
@@ -267,6 +267,14 @@ export function searchRecordData(): recordData  {
 		}
 	}
 	else {
+		if (files.length === 1) {
+			let isChecked = false;
+			if(renamingRecord.includes(fileGroup[0]))isChecked = true;
+			recordData.push({
+				dateTitle: formatDateTitle(fileGroup[0], lastHour,lastMin),
+				recordData: [{ name: fileGroup[0], checked: true }]
+				})
+		}
 		for (let i = 0; i < maxGroupCount && fileIndex < files.length;fileIndex++) {
 			// !嗯这里不需要…………只要不太集中不会卡的……&& fileIndex < maxMemberNum * 2
 			// curDay = Number(files[fileIndex].match(dayRegex)?.[0]);
