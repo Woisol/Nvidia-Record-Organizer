@@ -578,10 +578,6 @@ video {
   bottom: -0.5rem;
 }
 
-.bottom-10 {
-  bottom: 2.5rem;
-}
-
 .left-0 {
   left: 0px;
 }
@@ -616,6 +612,10 @@ video {
 
 .top-8 {
   top: 2rem;
+}
+
+.bottom-10 {
+  bottom: 2.5rem;
 }
 
 .-z-10 {
@@ -666,6 +666,10 @@ video {
 
 .mr-2 {
   margin-right: 0.5rem;
+}
+
+.mt-10 {
+  margin-top: 2.5rem;
 }
 
 .mt-2 {
@@ -728,6 +732,10 @@ video {
   height: 600px;
 }
 
+.h-\[650px\] {
+  height: 650px;
+}
+
 .h-\[calc\(100\%-32px\)\] {
   height: calc(100% - 32px);
 }
@@ -747,6 +755,10 @@ video {
 
 .h-screen {
   height: 100vh;
+}
+
+.h-\[694px\] {
+  height: 694px;
 }
 
 .min-h-\[200px\] {
@@ -814,16 +826,16 @@ video {
   width: 100vw;
 }
 
-.min-w-4 {
-  min-width: 1rem;
-}
-
-.min-w-8 {
-  min-width: 2rem;
+.w-\[336px\] {
+  width: 336px;
 }
 
 .min-w-32 {
   min-width: 8rem;
+}
+
+.min-w-8 {
+  min-width: 2rem;
 }
 
 .-translate-x-1\/2 {
@@ -907,22 +919,6 @@ video {
 
 .whitespace-nowrap {
   white-space: nowrap;
-}
-
-.whitespace-pre-line {
-  white-space: pre-line;
-}
-
-.whitespace-pre-wrap {
-  white-space: pre-wrap;
-}
-
-.whitespace-break-spaces {
-  white-space: break-spaces;
-}
-
-.text-wrap {
-  text-wrap: wrap;
 }
 
 .text-nowrap {
@@ -1054,6 +1050,10 @@ video {
   padding: 1.5rem;
 }
 
+.p-8 {
+  padding: 2rem;
+}
+
 .px-2 {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -1099,10 +1099,6 @@ video {
 
 .text-center {
   text-align: center;
-}
-
-.text-right {
-  text-align: right;
 }
 
 .text-2xl {

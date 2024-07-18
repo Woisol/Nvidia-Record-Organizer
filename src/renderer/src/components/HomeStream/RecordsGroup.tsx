@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Record from "./Record"
-import { Checkbox, FormControlLabel } from "@mui/material";
+import { Checkbox, FormControlLabel, Tooltip, Zoom } from "@mui/material";
 type recordData = {
 	index: number,
 	curDir: string,
@@ -98,7 +98,9 @@ export default function RecordsGroup({ index, curDir, displaySize, handleDetailW
 				</div>
 				<div id={`records-group-${index}`} className={`w-fit relative flex flex-wrap ${displaySize === 2 ? 'gap-4' : 'gap-3'}`}>
 					{recordData.recordData.map((item, index) => (
+						// <Tooltip title={item.name} TransitionComponent={Zoom} enterDelay={500} >
 						<Record key={index} index={index} curDir={curDir} displaySize={displaySize} handleDetailWinOpen={handleDetailWinOpen} RecordData={item} handleCleckBoxChecked={handleCleckBoxChecked} />
+						// </Tooltip>
 					))}
 				</div>
 			</div>

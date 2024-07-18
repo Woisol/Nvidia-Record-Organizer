@@ -226,7 +226,6 @@ export function searchRecordData(): recordData  {
 		// else {
 		// 	return date + lastTime.getHours() + ":" + lastTime.getMinutes() + " - " + curTime.getHours() + ":" + curTime.getMinutes();
 		// }
-
 	}
 
 	var lastHour = 0, lastMin = 0, lastSecond = 0;
@@ -272,7 +271,7 @@ export function searchRecordData(): recordData  {
 			if(renamingRecord.includes(fileGroup[0]))isChecked = true;
 			recordData.push({
 				dateTitle: formatDateTitle(fileGroup[0], lastHour,lastMin),
-				recordData: [{ name: fileGroup[0], checked: true }]
+				recordData: [{ name: fileGroup[0], checked: isChecked }]
 				})
 		}
 		for (let i = 0; i < maxGroupCount && fileIndex < files.length;fileIndex++) {

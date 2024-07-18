@@ -1,6 +1,7 @@
-import { Check, Refresh } from "@mui/icons-material"
+import { Check, HelpOutline, Refresh } from "@mui/icons-material"
 import rightArrow from '../../../../../resources/right-arrow.png'
 import { useState } from "react"
+import { Tooltip, Zoom } from "@mui/material"
 
 type props = {
 	renamineWinOpen: boolean
@@ -42,6 +43,10 @@ export default function RenameWin({ renamineWinOpen, setRenamineWinOpen, firstFi
 			setRenamineWinOpen(false);
 		}
 	})
+
+	document.addEventListener('keyup', (event) => { if (event.key === 'Escape') { setRenamineWinOpen(false) } })
+	// !虽然但是这个不应该再为false的时候也重复执行吗？……
+
 	return (
 		<>
 			<div className={`w-full h-[calc(100vh-32px)] fixed left-0 top-8 z-30 backdrop-blur-2xl transition-all duration-500 ${renamineWinOpen ? 'opacity-50' : 'opacity-0 pointer-events-none'}`} style={{ backgroundColor: 'rgb(0,0,0)' }}></div>
@@ -96,26 +101,35 @@ export default function RenameWin({ renamineWinOpen, setRenamineWinOpen, firstFi
 				{renamineWinOpen &&
 					<>
 						<div className="w-full h-14 bg-white"></div>
-						<div className="w-full h-[544px] p-10 bg-white text-xl">
+						<div className="w-full h-[544px] p-8 bg-white text-xl">
 							<p className='w-full relative my-2 mt-3'><b>选中数量：</b><span className="absolute right-0">{selectNum}个</span></p>
-							<p className='w-full relative mt-2'><b>最长间隔时间：</b><span className="absolute right-0">
-								{`${Math.floor(maxGapSeconds % 86400 / 3600) === 0 ? '' : `${(maxGapSeconds % 86400 / 3600).toFixed(1)}h `}${Math.floor(maxGapSeconds % 3600 / 60) === 0 ? '' : `${(maxGapSeconds % 3600 / 60).toFixed(0)}min `}${maxGapSeconds % 60}s`}</span>
+							<p className='w-full relative mt-2'><b>最长间隔时间：</b>
+								<Tooltip title='超过一天时该记录并不准确' placement='bottom-end' TransitionComponent={Zoom} TransitionProps={{ timeout: 200 }} enterDelay={500} leaveDelay={100} arrow>
+									<HelpOutline />
+								</Tooltip>
+								<span className="absolute right-0">{`${Math.floor(maxGapSeconds % 86400 / 3600) === 0 ? '' : `${(maxGapSeconds % 86400 / 3600).toFixed(1)}h `}${Math.floor(maxGapSeconds % 3600 / 60) === 0 ? '' : `${(maxGapSeconds % 3600 / 60).toFixed(0)}min `}${maxGapSeconds % 60}s`}</span>
 							</p>
-							<div className="text-xs text-gray-400">超过一天时该记录并不准确</div>
-							<p className='my-2'></p>
-							<b>改名方案：</b><div className="text-xs text-gray-400">{'(支持{game},{date},{yyyy},{MM},{dd},{HH},{mm},{ss},{message},{indexIfRepeat}等变量，区分大小写，其中{indexIfRepeat}如果不重复时会自动删去前面空格)'}</div>
+							{/* <div className="text-xs text-gray-400"></div> */}
+							<p className='my-2'>
+								<b>改名方案：</b>
+								<Tooltip title='支持变量{game},{date},{yyyy},{MM},{dd},{HH},{mm},{ss},{message},{indexIfRepeat}，区分大小写，其中{indexIfRepeat}如果不重复时会自动删去前面空格' placement='bottom' TransitionComponent={Zoom} TransitionProps={{ timeout: 200 }} enterDelay={500} leaveDelay={100} arrow>
+									{/* //!并换不了行 */}
+									<HelpOutline />
+								</Tooltip>
+								{/* <div className="text-xs text-gray-400">{'(支持{game},{date},{yyyy},{MM},{dd},{HH},{mm},{ss},{message},{indexIfRepeat}等变量，区分大小写，其中{indexIfRepeat}如果不重复时会自动删去前面空格)'}</div> */}
+							</p>
 							<textarea className='w-full mb-4 border-b-2 border-gray-500 text-sm hide-scrollbar' title='renaming scheme' value={renameScheme} onChange={(e) => { const value = e.target.value; setRenameScheme(value); updateRenamePreview(value, game, message); }} />
-							<b>游戏名称{'{Game}'}：</b>
+							<b>游戏名称{'{game}'}：</b>
 							{/* // !呼FT乱来，这样就可以显示{ }了 */}
 							<input className='w-full mb-4 border-b-2 border-gray-500 text-center' title='game name' type="text" placeholder={game} onChange={(e) => { var value = e.target.value; if (value === '' && originGameName) value = originGameName; setGame(value); updateRenamePreview(renameScheme, value, message); }} />
-							<b>自定义信息{'{Message}'}</b>
+							<b>自定义信息{'{message}'}</b>
 							<textarea className='w-full mb-4 border-b-2 border-gray-500 text-sm hide-scrollbar' title='massage' value={message} onChange={(e) => { const value: string = e.target.value; if (value.endsWith('\n')) return; setMessage(value); updateRenamePreview(renameScheme, game, value); }} />
 							{/* //!无法使用whitespace禁止换行………… */}
-							<div className="w-[320px] absolute bottom-10 text-center">
+							<div className="w-[336px] absolute bottom-10 text-center">
 								<b>效果预览</b><div className="text-xs text-gray-400">（以第一个文件为例）：</div>
 								<div className="w-full h-14 px-2 bg-gray-200 rounded-2xl flex justify-center items-center">
 									<span className='w-40 text-xs text-left select-text'>{firstFileName}</span>
-									<div className='flex flex-col mr-2'>
+									<div className='flex flex-col mr-4'>
 										<span className='text-sm'>改名为</span>
 										<img src={rightArrow} alt="---->" />
 									</div>

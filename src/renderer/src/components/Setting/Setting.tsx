@@ -107,6 +107,9 @@ export default function Setting() {
 		window.electron.ipcRenderer.send("request-change-auto-refresh", autoRefresh);
 	}
 
+	document.addEventListener('keydown', (event) => { if (event.key === 'Escape') { window.close() } })
+	// !不知用keypress是什么效果为什么不得
+
 	return (
 		<div className="w-screen h-screen flex flex-col overflow-hidden">
 			<div className="w-full h-14 rounded-b-2xl flex items-center bg-gray-300">
