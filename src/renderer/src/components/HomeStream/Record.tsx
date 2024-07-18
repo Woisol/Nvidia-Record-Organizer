@@ -7,7 +7,6 @@ type RecordData = {
 	curDir: string,
 	displaySize: number,
 	handleDetailWinOpen: (e: HTMLImageElement, detailWinOpen: boolean) => void,
-	checkGroupAllChecked: () => void,
 	RecordData: {
 		name: string,
 		checked: boolean
@@ -15,13 +14,13 @@ type RecordData = {
 	handleCleckBoxChecked: (name: string, checked: boolean) => void
 }
 
-export default function Record({ index, curDir, displaySize, handleDetailWinOpen, checkGroupAllChecked, RecordData, handleCleckBoxChecked }: RecordData) {
+export default function Record({ index, curDir, displaySize, handleDetailWinOpen, RecordData, handleCleckBoxChecked }: RecordData) {
 	// const [checked, setChecked] = useState(RecordData.checked);
 	// !艹必须要用state…………不然React不会刷新的…………
 
 	return (
 		<>
-			<div className={`${displaySize === 0 ? "w-[150px] h-[112.5px]" : displaySize === 1 ? "w-[250px] h-[187.5px]" : "w-[400px] h-[300px]"} overflow-hidden relative ${RecordData.checked ? `${displaySize === 0 ? 'scale-110' : 'scale-105'} border-red-500` : 'border-gray-500'} rounded-2xl border-4 shadow-lg transition-all duration-300 ${displaySize === 0 ? 'hover:scale-110' : 'hover:scale-105'} hover:z-10 `} onContextMenu={(e) => {
+			<div className={`${displaySize === 0 ? "w-[150px] h-[112.5px]" : displaySize === 1 ? "w-[250px] h-[187.5px]" : "w-[400px] h-[300px]"} overflow-hidden relative ${RecordData.checked ? `${displaySize === 0 ? 'scale-110' : 'scale-105'} border-red-500` : 'border-gray-500'} rounded-2xl border-4 shadow-lg transition-all duration-300 ${displaySize === 0 ? 'hover:scale-110' : 'hover:scale-105'} hover:z-10 `} onContextMenu={() => {
 				window.electron.ipcRenderer.send('contextmenu-record', { name: RecordData.name });
 				// !不需要传递x,y，electron自己弹出的时候就默认是跟随鼠标了的
 			}}>
@@ -38,7 +37,7 @@ export default function Record({ index, curDir, displaySize, handleDetailWinOpen
 								<Checkbox checked={RecordData.checked} onChange={e => {
 									// setChecked(e.target.checked);
 									handleCleckBoxChecked(RecordData.name, e.target.checked);
-									checkGroupAllChecked();
+									// checkGroupAllChecked();
 									window.electron.ipcRenderer.send('request-update-renaming-record', { name: RecordData.name, checked: e.target.checked });
 								}} icon={<CheckCircleOutline />} checkedIcon={<CheckCircleRounded />} sx={{ bottom: '5px', right: '5px', position: 'absolute', boxShadow: '0px 0px 20px rgba(0,0,0,0.5)' }} />
 							} />

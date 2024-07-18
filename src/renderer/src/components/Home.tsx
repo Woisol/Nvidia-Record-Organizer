@@ -13,7 +13,7 @@ type recordGroupData =
 		dateTitle: string,
 		recordData: Array<{ name: string, checked: boolean }>
 	}
-type recordDataArray = [Array<recordGroupData>, () => void]
+// type recordDataArray = [Array<recordGroupData>, () => void]
 
 export default function Home({ curDir }: Props) {
 	const [displaySize, setDisplaySize] = useState(1)
@@ -24,7 +24,17 @@ export default function Home({ curDir }: Props) {
 	// @ts-ignore
 	useEffect(() => { window.store.get("displaySize").then(res => setDisplaySize(res)) }, [])
 
-	window.electron.ipcRenderer.on('update-record-data', (events, arg) => { setRecordDataGroup(arg); console.log("render update-record-data ", arg) });
+	window.electron.ipcRenderer.on('update-record-data', (events, arg) => {
+		// new Promise(resolve => {
+		setRecordDataGroup(arg);// resolve(1);
+		// }).then(() => {
+		// checkGroupAllChecked()
+		// });
+	});
+	//console.log("render update-record-data ", arg)
+	// ~~checkGroupAllChecked()可能不太行因为set的滞后性…………
+	// ~~可以使用Promise！不知为何并无法实现…………
+	// !应该是通过修改checkGroupAllChecked函数的实现方式来实现………………
 	window.electron.ipcRenderer.on('update-display-size', (events, arg) => { setDisplaySize(arg); console.log("Now Display in Size ", arg); })
 
 	function handleDetailWinOpen(target: HTMLImageElement, detailWinOpen: boolean) {
@@ -82,7 +92,6 @@ export default function Home({ curDir }: Props) {
 		}
 	}
 	function handleCleckBoxChecked(name: string, checked: boolean) {
-		// @ts-ignore
 		// setRecordDataGroup(recordDataGroup.map((recordDataGroup: recordGroupData) => {
 		// 	recordDataGroup.recordData.forEach((recordData) => recordData.name === name)
 		// }))

@@ -193,7 +193,7 @@ const gameNameRegex = /^.*(?= Screenshot)/;
 var game: string | undefined, testFileName: string;
 export function searchRecordData(): recordData  {
 	if (!fs.existsSync(curDir)) {
-		console.error('former store directory was deleted!');
+		console.error(`former store directory ${curDir} was deleted or failed to get $curDir`);
 		// !注意加这个不然bug…………
 		// !额加了似乎也无法加载…………不能是null…………
 		return [];
@@ -303,7 +303,7 @@ export function searchRecordData(): recordData  {
 			lastMin = curMin;
 		}
 	}
-	console.log(recordData);
+	// console.log(recordData);
 	return recordData;
 	// })
 }

@@ -105,7 +105,7 @@ export default function RenameWin({ renamineWinOpen, setRenamineWinOpen, firstFi
 							{/* // !呼FT乱来，这样就可以显示{ }了 */}
 							<input className='w-full mb-4 border-b-2 border-gray-500 text-center' title='game name' type="text" placeholder={game} onChange={(e) => { var value = e.target.value; if (value === '' && originGameName) value = originGameName; setGame(value); updateRenamePreview(renameScheme, value, message); }} />
 							<b>自定义信息{'{Message}'}</b>
-							<textarea className='w-full mb-4 border-b-2 border-gray-500 text-sm hide-scrollbar' title='massage' value={message} onChange={(e) => { const value = e.target.value; setMessage(value); updateRenamePreview(renameScheme, game, value); }} />
+							<input className='w-full mb-4 border-b-2 border-gray-500 text-sm hide-scrollbar' title='massage' value={message} onChange={(e) => { const value = e.target.value; setMessage(value); updateRenamePreview(renameScheme, game, value); }} />
 							<div className="w-[320px] absolute bottom-10 text-center">
 								<b>效果预览</b><div className="text-xs text-gray-400">（以第一个文件为例）：</div>
 								<div className="w-full h-14 px-2 bg-gray-200 rounded-2xl flex justify-center items-center">
