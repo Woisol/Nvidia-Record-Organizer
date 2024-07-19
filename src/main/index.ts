@@ -3,8 +3,9 @@ import path from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { ipcSetup } from './ipcSetup'
-import { initDefaultSetting } from './dataProcess'
+import { initDefaultSetting, thumbnailDir } from './dataProcess'
 import contextMenuSetup from './contextMenu'
+import * as fs from 'fs'
 
 export var mainWindow: BrowserWindow;
 // export var settingWindow : BrowserWindow;
@@ -91,6 +92,17 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+app.on('quit', () => {
+  fs.readdir(thumbnailDir, (err, files) => {
+    if (err) { console.error(err); return; }
+
+    files.forEach(file => {
+      // console.log('going to delete file: ', path.join(thumbnailDir, file));
+      fs.unlink(path.join(thumbnailDir, file), err => {if(err)console.error('error when trying to delete thumbnail ',file,': ',err);})
+    })
+  })
 })
 
 // In this file you can include the rest of your app"s specific main process

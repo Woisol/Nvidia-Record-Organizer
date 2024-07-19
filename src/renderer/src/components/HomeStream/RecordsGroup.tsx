@@ -10,12 +10,13 @@ type recordData = {
 		dateTitle: string,
 		recordData: Array<{ name: string, checked: boolean }>
 	},
-	handleCleckBoxChecked: (name: string, checked: boolean) => void
+	handleCleckBoxChecked: (name: string, checked: boolean) => void,
 	// !来自eslint的规范
+	thumbnailDir: string
 }
 // export var checkGroupAllChecked;
 // !这样就可以实现export了！！！
-export default function RecordsGroup({ index, curDir, displaySize, handleDetailWinOpen, recordData, handleCleckBoxChecked }: recordData) {
+export default function RecordsGroup({ index, curDir, displaySize, handleDetailWinOpen, recordData, handleCleckBoxChecked, thumbnailDir }: recordData) {
 	// !额艹这个key是读不到的…………
 	const [indeterminate, setIndeterminate] = useState(false)
 	const [groupAllChecked, setGroupAllChecked] = useState(false)
@@ -99,7 +100,7 @@ export default function RecordsGroup({ index, curDir, displaySize, handleDetailW
 				<div id={`records-group-${index}`} className={`w-fit relative flex flex-wrap ${displaySize === 2 ? 'gap-4' : 'gap-3'}`}>
 					{recordData.recordData.map((item, index) => (
 						// <Tooltip title={item.name} TransitionComponent={Zoom} enterDelay={500} >
-						<Record key={index} index={index} curDir={curDir} displaySize={displaySize} handleDetailWinOpen={handleDetailWinOpen} RecordData={item} handleCleckBoxChecked={handleCleckBoxChecked} />
+						<Record key={index} index={index} curDir={curDir} displaySize={displaySize} handleDetailWinOpen={handleDetailWinOpen} RecordData={item} handleCleckBoxChecked={handleCleckBoxChecked} thumbnailDir={thumbnailDir} />
 						// </Tooltip>
 					))}
 				</div>

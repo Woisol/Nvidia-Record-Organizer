@@ -1,5 +1,7 @@
+// !图片性能优化相关:https://segmentfault.com/a/1190000043479272
 import { CheckCircleOutline, CheckCircleRounded } from "@mui/icons-material";
 import { Checkbox, FormControlLabel, Grow, Tooltip } from "@mui/material";
+import { thumbnailDir } from "../Home";
 
 type RecordData = {
 	index: number,
@@ -10,10 +12,11 @@ type RecordData = {
 		name: string,
 		checked: boolean
 	},
-	handleCleckBoxChecked: (name: string, checked: boolean) => void
+	handleCleckBoxChecked: (name: string, checked: boolean) => void,
+	thumbnailDir: string
 }
-
-export default function Record({ index, curDir, displaySize, handleDetailWinOpen, RecordData, handleCleckBoxChecked }: RecordData) {
+// const thumbnailDir: string = path.join(app.getPath('temp'), 'NvidiaRecordOrganizer');
+export default function Record({ index, curDir, displaySize, handleDetailWinOpen, RecordData, handleCleckBoxChecked, thumbnailDir }: RecordData) {
 	// const [checked, setChecked] = useState(RecordData.checked);
 	// !艹必须要用state…………不然React不会刷新的…………
 
@@ -28,7 +31,8 @@ export default function Record({ index, curDir, displaySize, handleDetailWinOpen
 						{/* //!噢噢！MUI的类名应该这样加！！！ */}
 						{/* <></> */}
 						{/* //!虽然报错了但是加了<></>反而无法正常显示Tooltip */}
-						<img src={`file:\\\\${curDir}\\${RecordData.name}`} alt={RecordData.name} className="w-full h-full object-cover" onClick={(e) => handleDetailWinOpen(e.target as HTMLImageElement, true)} />
+						<img src={`file:\\\\${thumbnailDir}\\${RecordData.name.replace(".png", "_thumbnail.jpg")}`} alt={RecordData.name} className="w-full h-full object-cover" onClick={(e) => handleDetailWinOpen(e.target as HTMLImageElement, true)} />
+						{/* //!加了file:\\\\也无法解决刷新后无缩略图的问题 */}
 						{/* <Tooltip> */}
 						<div className={`w-full absolute text-white  pointer-events-none text-center ${displaySize === 0 ? 'h-5 ext-sm -bottom-1' : 'h-7 text-lg -bottom-2'}`} style={{ textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden" }}>
 							{/* //!因为pointer-event-none而无法使用tooltip…… */}

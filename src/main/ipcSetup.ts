@@ -1,5 +1,5 @@
-import {  BrowserWindow, ipcMain } from "electron";
-import { changeCurDir, getRenameInfo, getSetting, initSetting, renameMainProcess, searchRecordData, store,  updateAutoRefresh, updateAutoSort, updateDisplaySize, updateMaxGoupCount, updateMaxGroupGapSeconds, updateRenamePreview, updateRenamineRecord } from "./dataProcess";
+import {  app, BrowserWindow, ipcMain } from "electron";
+import { changeCurDir, getRenameInfo, getSetting, initSetting, renameMainProcess, searchRecordData, store,  thumbnailDir,  updateAutoRefresh, updateAutoSort, updateDisplaySize, updateMaxGoupCount, updateMaxGroupGapSeconds, updateRenamePreview, updateRenamineRecord } from "./dataProcess";
 import { mainWindow } from ".";
 import test from "node:test";
 import path from "node:path";
@@ -63,6 +63,13 @@ export function ipcSetup() {
 	})
 	ipcMain.on("request-change-auto-refresh", (e, arg) => {
 		updateAutoRefresh(arg);
+	})
+
+	ipcMain.handle('request-thumbnail-dir', () => {
+		if(thumbnailDir)
+			return thumbnailDir;
+		console.log("thumbnailDir is undifined");
+		return path.join(app.getPath('temp'), 'NvidiaRecordOrganizer');
 	})
 
 	//**----------------------------Renaming Process-----------------------------------------------------

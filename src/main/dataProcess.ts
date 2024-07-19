@@ -3,9 +3,7 @@ import path from 'path'
 import { mainWindow } from '.'
 import ElectronStore from 'electron-store'
 import * as fs from 'fs';
-import * as fsextra from 'fs-extra';
-import { exec } from 'child_process';
-import { NewReleases } from '@mui/icons-material';
+import sharp from 'sharp';
 // const fs= require('fs');
 // !艹注意要导入时@types/node才能有补全…………而且要用import
 
@@ -63,7 +61,9 @@ type setting = {
 
 export var store: ElectronStore;
 // !虽然可以export但是export出来的并没有定义…………所以还是在里面搞吧
-export var curDir:string
+export var curDir: string, thumbnailDir: string =path.join( app.getPath('temp'), 'NvidiaRecordOrganizer');
+if(!fs.existsSync(thumbnailDir))fs.mkdir(thumbnailDir,(err)=>{if(err)console.error("unabled to create ThumbnailDir!")});
+// !recursive=true会递归
 var displaySize: number,maxGroupGapSeconds: number, maxGroupCount: number,autoSort: boolean,autoRefresh: number,renameScheme:string = "";
 
 var renamingRecord: string[] = [];
@@ -227,6 +227,21 @@ export function searchRecordData(): recordData  {
 		console.error("当前目录下没有找到回放文件");
 		return [];
 	}
+
+	//**----------------------------Thumbnail Generation-----------------------------------------------------
+	let thumbnailHeight = 300,thumbnailWidth;
+	files.forEach(file => {
+		var thumbnailSharp: sharp.Sharp = sharp(path.join(curDir, file))
+			thumbnailSharp.metadata().then((metadata) => {
+			if (metadata.width === undefined || metadata.height === undefined) { console.error('sharp was unabled to get width or height of src file'); return; }
+			thumbnailWidth = Math.floor(metadata.width / metadata.height * thumbnailHeight);
+		})
+		thumbnailSharp.resize(thumbnailWidth, thumbnailHeight);
+		const newThumbnailDir = path.join(thumbnailDir, file.replace(".png", "_thumbnail.jpg"));
+		if(!fs.existsSync(newThumbnailDir))
+		thumbnailSharp.toFile(newThumbnailDir);
+	});
+
 	// const gameName = gameNameRegex.exec(files[0])?.[1];
 	game = files[0].match(gameNameRegex)?.[0];
 	testFileName = files[0];

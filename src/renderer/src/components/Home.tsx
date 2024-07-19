@@ -15,14 +15,25 @@ type recordGroupData =
 	}
 // type recordDataArray = [Array<recordGroupData>, () => void]
 
+export var thumbnailDir: string;
+var originThumbnail;
 export default function Home({ curDir }: Props) {
 	const [displaySize, setDisplaySize] = useState(1)
 	var [recordDataGroup, setRecordDataGroup] = useState([])
 	// : recordDataArray
 	const [detailWinOpen, setDetailWinOpen] = useState(false);
 	const [renamineWinOpen, setRenamineWinOpen] = useState(false);
-	// @ts-ignore
-	useEffect(() => { window.store.get("displaySize").then(res => setDisplaySize(res)) }, [])
+	const [thumbnailDir, setThumbnailDir] = useState("")
+	window.electron.ipcRenderer.invoke('request-thumbnail-dir').then(res => { setThumbnailDir(res); })
+
+	useEffect(() => {
+		// @ts-ignore
+		window.store.get("displaySize").then(res => setDisplaySize(res))
+		// @ts-ignore
+		// thumbnailDir = window.path.join(window.app.getPath('temp'), 'NvidiaRecordOrganizer');
+		// thumbnailDir = window.thumbnailDir;
+		// !使用preload的方法连initSetting都进不去
+	}, [])
 
 	window.electron.ipcRenderer.on('update-record-data', (events, arg) => {
 		// new Promise(resolve => {
@@ -47,7 +58,8 @@ export default function Home({ curDir }: Props) {
 			originImgClientRects = originTarget.getClientRects()[0];
 			if (!originImgClientRects) console.error("originImgClientRects is null");
 			detailImg.style.cssText = `left:${originImgClientRects.left}px;top:${originImgClientRects.top}px;width:${originImgClientRects.width}px;height:${originImgClientRects.height}px;`;
-			detailImg.src = originTarget.src;
+			detailImg.src = `${curDir}\\${originTarget.alt}`;
+			originThumbnail = originTarget.src;
 			originTarget.src = emptySrc;
 
 			setTimeout(() => {
@@ -74,8 +86,8 @@ export default function Home({ curDir }: Props) {
 			detailImg.classList.remove("w-[800px]", "left-1/2", "top-1/2", "-translate-x-1/2", "-translate-y-1/2");
 			detailImg.style.cssText = `left:${originImgClientRects.left}px;top:${originImgClientRects.top}px;width:${originImgClientRects.width}px;height:${originImgClientRects.height}px;`;
 			setDetailWinOpen(detailWinOpen);
-			if (!isReachCenter && detailImg.src !== emptySrc) {
-				originTarget.src = detailImg.src;
+			if (!isReachCenter && originThumbnail !== undefined) {
+				originTarget.src = originThumbnail;
 			}
 
 			// setTimeout(() => {
@@ -84,8 +96,8 @@ export default function Home({ curDir }: Props) {
 			// }, 50)
 
 			setTimeout(() => {
-				if (detailImg.src !== emptySrc)
-					originTarget.src = detailImg.src;
+				if (originThumbnail !== undefined)
+					originTarget.src = originThumbnail;
 				detailImg.src = emptySrc;
 				detailImg.style.cssText = '';
 			}, 500)
@@ -130,7 +142,7 @@ export default function Home({ curDir }: Props) {
 					// !woc！！！这！自己补全出来了tailwindcss的动画哈哈哈
 					:
 					<>
-						{recordDataGroup.map((recordData, index) => <RecordsGroup key={index} index={index} curDir={curDir} displaySize={displaySize} handleDetailWinOpen={handleDetailWinOpen} recordData={recordData} handleCleckBoxChecked={handleCleckBoxChecked} />)}
+						{recordDataGroup.map((recordData, index) => <RecordsGroup key={index} index={index} curDir={curDir} displaySize={displaySize} handleDetailWinOpen={handleDetailWinOpen} recordData={recordData} handleCleckBoxChecked={handleCleckBoxChecked} thumbnailDir={thumbnailDir} />)}
 						{/* <Button size='medium' variant='contained' style={{ width: '300px', marginLeft: 'auto', marginRight: 'auto' }} >加载更多</Button> */}
 						<RenameWin renamineWinOpen={renamineWinOpen} setRenamineWinOpen={setRenamineWinOpen} firstFileName={recordDataGroup[0].recordData[0].name} />
 					</>
