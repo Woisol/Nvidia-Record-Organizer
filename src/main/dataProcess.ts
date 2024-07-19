@@ -100,6 +100,7 @@ export function updateAutoRefresh(value: number) {
 	autoRefresh = value;
 	// @ts-ignore
 	store.set('autoRefresh', autoRefresh);
+	autoRefreshSetup();
 }
 
 // **配置默认设置
@@ -156,8 +157,10 @@ export function initSetting() {
 	mainWindow.webContents.send('update-cur-dir', curDir);
 	mainWindow.webContents.send('init-setting', initSetting);
 
-	const initData  = searchRecordData();
-	mainWindow.webContents.send('update-record-data', initData);
+	// const initData  = ;
+	mainWindow.webContents.send('update-record-data',searchRecordData() );
+
+	autoRefreshSetup();
 }
 export function getSetting() :setting{
 	const curSetting: setting = {
@@ -179,6 +182,19 @@ export function changeCurDir():string | undefined {
 	updateCurDir(res[0]);
 	// @ts-ignore
 	return store.get('curDir');
+}
+
+var autoRefreshInterval: NodeJS.Timeout | undefined;
+function autoRefreshSetup() {
+	if (autoRefreshInterval) {
+		clearInterval(autoRefreshInterval);
+		autoRefreshInterval = undefined
+	}
+	if (autoRefresh > 0) {
+		autoRefreshInterval = setInterval(() => {
+			mainWindow.webContents.send('update-record-data', searchRecordData());
+		}, autoRefresh * 1000);
+	}
 }
 
 //**----------------------------Record Data-----------------------------------------------------
@@ -266,14 +282,14 @@ export function searchRecordData(): recordData  {
 		}
 	}
 	else {
-		if (files.length === 1) {
-			let isChecked = false;
-			if(renamingRecord.includes(fileGroup[0]))isChecked = true;
-			recordData.push({
-				dateTitle: formatDateTitle(fileGroup[0], lastHour,lastMin),
-				recordData: [{ name: fileGroup[0], checked: isChecked }]
-				})
-		}
+		// if (files.length === 1) {
+		// 	let isChecked = false;
+		// 	if(renamingRecord.includes(fileGroup[0]))isChecked = true;
+		// 	recordData.push({
+		// 		dateTitle: formatDateTitle(fileGroup[0], lastHour,lastMin),
+		// 		recordData: [{ name: fileGroup[0], checked: isChecked }]
+		// 		})
+		// }
 		for (let i = 0; i < maxGroupCount && fileIndex < files.length;fileIndex++) {
 			// !嗯这里不需要…………只要不太集中不会卡的……&& fileIndex < maxMemberNum * 2
 			// curDay = Number(files[fileIndex].match(dayRegex)?.[0]);
@@ -303,15 +319,27 @@ export function searchRecordData(): recordData  {
 					})
 				})
 				if(newRenamingRecord.length !== renamingRecord.length){
-				console.log("Some records was select but now not exist any more!");
-				renamingRecord = newRenamingRecord;
+					console.log("Some records was select but now not exist any more!");
+					renamingRecord = newRenamingRecord;
 				}
 				fileGroup = [files[fileIndex]];
+				// !麻了高留存bug…………加进来以后你就不push了吗？
 			}
 			lastTimeSeconds = curTimeSeconds;
 			lastHour = curHour;
 			lastMin = curMin;
 		}
+		recordData.push({
+			dateTitle: formatDateTitle(fileGroup[0], lastHour,lastMin),
+			recordData: fileGroup.map(file => {
+				if (renamingRecord.includes(file)) {
+					newRenamingRecord.push(file);
+					return ({ name: file, checked: true })
+				}
+				else
+					return ({ name: file, checked: false })
+			})
+		})
 	}
 	// console.log(recordData);
 	return recordData;

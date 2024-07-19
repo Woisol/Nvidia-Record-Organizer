@@ -85,7 +85,7 @@ export default function RecordsGroup({ index, curDir, displaySize, handleDetailW
 								const thisRecordGroup = document.getElementById(`records-group-${index}`) as HTMLDivElement;
 								for (let i = 0; i < thisRecordGroup.children.length; i++) {
 									// for (const child of thisRecordGroup.children){
-									const checkbox = (thisRecordGroup.children[i].children[2].children[0].children[0] as HTMLInputElement)
+									const checkbox = (thisRecordGroup.children[i].children[0].children[2].children[0].children[0] as HTMLInputElement)
 									if (checkbox.checked !== e.target.checked)
 										setTimeout(() => {
 											// !由于使用MUI而被迫绕路呜……必须要使用click()函数不然没有任何效果

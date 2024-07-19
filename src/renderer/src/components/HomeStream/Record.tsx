@@ -1,6 +1,5 @@
 import { CheckCircleOutline, CheckCircleRounded } from "@mui/icons-material";
-import { Checkbox, FormControlLabel } from "@mui/material";
-import { useState, useEffect } from "react"
+import { Checkbox, FormControlLabel, Grow, Tooltip } from "@mui/material";
 
 type RecordData = {
 	index: number,
@@ -25,12 +24,20 @@ export default function Record({ index, curDir, displaySize, handleDetailWinOpen
 				// !不需要传递x,y，electron自己弹出的时候就默认是跟随鼠标了的
 			}}>
 				{curDir === '' || RecordData.name === '' ? <p className="w-full text-center text-2xl"><br />数据不能为空！</p> :
-					<>
+					<Tooltip title={RecordData.name} arrow TransitionComponent={Grow} TransitionProps={{ timeout: 300 }} enterDelay={1000} classes={{ tooltip: "whitespace-nowrap" }}>
+						{/* //!噢噢！MUI的类名应该这样加！！！ */}
+						{/* <></> */}
+						{/* //!虽然报错了但是加了<></>反而无法正常显示Tooltip */}
 						<img src={`file:\\\\${curDir}\\${RecordData.name}`} alt={RecordData.name} className="w-full h-full object-cover" onClick={(e) => handleDetailWinOpen(e.target as HTMLImageElement, true)} />
+						{/* <Tooltip> */}
 						<div className={`w-full absolute text-white  pointer-events-none text-center ${displaySize === 0 ? 'h-5 ext-sm -bottom-1' : 'h-7 text-lg -bottom-2'}`} style={{ textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden" }}>
+							{/* //!因为pointer-event-none而无法使用tooltip…… */}
 							<div className="w-full h-full absolute bg-gradient-to-t from-gray-700 to-gray-300 opacity-30"></div>
-							{RecordData.name.match(/(?<=Screenshot )\d{4}.\d{2}.\d{2} - \d{2}.\d{2}.\d{2}(?=.\d{2}.png)/)}
+							<>
+								{RecordData.name.match(/(?<=Screenshot )\d{4}.\d{2}.\d{2} - \d{2}.\d{2}.\d{2}(?=.\d{2}.png)/)}
+							</>
 						</div>
+						{/* </Tooltip> */}
 						<FormControlLabel
 							label={`label${index}`}
 							control={
@@ -41,7 +48,7 @@ export default function Record({ index, curDir, displaySize, handleDetailWinOpen
 									window.electron.ipcRenderer.send('request-update-renaming-record', { name: RecordData.name, checked: e.target.checked });
 								}} icon={<CheckCircleOutline />} checkedIcon={<CheckCircleRounded />} sx={{ bottom: '5px', right: '5px', position: 'absolute', boxShadow: '0px 0px 20px rgba(0,0,0,0.5)' }} />
 							} />
-					</>
+					</Tooltip>
 				}
 			</div>
 		</>
