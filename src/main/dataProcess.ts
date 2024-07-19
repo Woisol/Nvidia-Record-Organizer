@@ -73,7 +73,8 @@ function updateCurDir(newDir: string) {
 	// @ts-ignore
 	store.set('curDir', curDir);
 	mainWindow.webContents.send('update-cur-dir', curDir);
-	mainWindow.webContents.send('update-record-data', searchRecordData());
+	// mainWindow.webContents.send('update-record-data', searchRecordData());
+	updateRecordData();
 }
 export function updateDisplaySize(size: number):number {
 	displaySize = size;
@@ -158,8 +159,9 @@ export function initSetting() {
 	mainWindow.webContents.send('init-setting', initSetting);
 
 	// const initData  = ;
-	mainWindow.webContents.send('update-record-data',searchRecordData() );
+	// mainWindow.webContents.send('update-record-data',searchRecordData() );
 
+	updateRecordData();
 	autoRefreshSetup();
 }
 export function getSetting() :setting{
@@ -192,7 +194,8 @@ function autoRefreshSetup() {
 	}
 	if (autoRefresh > 0) {
 		autoRefreshInterval = setInterval(() => {
-			mainWindow.webContents.send('update-record-data', searchRecordData());
+			// mainWindow.webContents.send('update-record-data', searchRecordData());
+			updateRecordData();
 		}, autoRefresh * 1000);
 	}
 }
@@ -210,12 +213,17 @@ function resolveTimeFromFileName(file: string):[hour:number, min:number, sec:num
 
 const gameNameRegex = /^.*(?= Screenshot)/;
 var game: string | undefined, testFileName: string;
-export function searchRecordData(): recordData  {
+export function updateRecordData() {
+	searchRecordData().then(data => {mainWindow.webContents.send('update-record-data', data)})
+}
+async function searchRecordData() :Promise<recordData> {
+	// ~~ts报错async类型必须返回Promise，但是实际上返回一般数据也可以变为resolve(xxx)
+	// !害算了用then吧…………
 	if (!fs.existsSync(curDir)) {
 		console.error(`former store directory ${curDir} was deleted or failed to get $curDir`);
 		// !注意加这个不然bug…………
 		// !额加了似乎也无法加载…………不能是null…………
-		return [];
+		return Promise.resolve([]);
 	}
 	const res = fs.readdirSync(curDir)
 	res.sort();
@@ -225,23 +233,10 @@ export function searchRecordData(): recordData  {
 
 	if (files.length === 0) {
 		console.error("当前目录下没有找到回放文件");
-		return [];
+		return Promise.resolve([]);
 	}
 
-	//**----------------------------Thumbnail Generation-----------------------------------------------------
-	let thumbnailHeight = 300,thumbnailWidth;
-	files.forEach(file => {
-		var thumbnailSharp: sharp.Sharp = sharp(path.join(curDir, file))
-			thumbnailSharp.metadata().then((metadata) => {
-			if (metadata.width === undefined || metadata.height === undefined) { console.error('sharp was unabled to get width or height of src file'); return; }
-			thumbnailWidth = Math.floor(metadata.width / metadata.height * thumbnailHeight);
-		})
-		thumbnailSharp.resize(thumbnailWidth, thumbnailHeight);
-		const newThumbnailDir = path.join(thumbnailDir, file.replace(".png", "_thumbnail.jpg"));
-		if(!fs.existsSync(newThumbnailDir))
-		thumbnailSharp.toFile(newThumbnailDir);
-	});
-
+	// console.log('continue');
 	// const gameName = gameNameRegex.exec(files[0])?.[1];
 	game = files[0].match(gameNameRegex)?.[0];
 	testFileName = files[0];
@@ -274,8 +269,10 @@ export function searchRecordData(): recordData  {
 	// !艹遇到性能问题了哈哈从一开始的100降到50到现在20动画才不会掉帧…………
 	// !不对…………20也掉…………关键在于内存（）
 	var newRenamingRecord: string[] = [];
+	var totalRecordNum = 1;
 	if (maxGroupGapSeconds == 0) {
 		for (; fileIndex < files.length && fileIndex < maxMemberNum; fileIndex++) {
+			totalRecordNum++;
 			fileGroup.push(files[fileIndex]);
 		}
 		recordData.push({
@@ -317,6 +314,7 @@ export function searchRecordData(): recordData  {
 			// !不想用Date了，绕路！……
 
 			if (Math.abs(curTimeSeconds - lastTimeSeconds) < maxGroupGapSeconds) {
+				totalRecordNum++;
 				fileGroup.push(files[fileIndex]);
 				// foremostTimeSeconds = curTimeSeconds;
 			}
@@ -337,6 +335,7 @@ export function searchRecordData(): recordData  {
 					console.log("Some records was select but now not exist any more!");
 					renamingRecord = newRenamingRecord;
 				}
+				totalRecordNum++;
 				fileGroup = [files[fileIndex]];
 				// !麻了高留存bug…………加进来以后你就不push了吗？
 			}
@@ -357,8 +356,32 @@ export function searchRecordData(): recordData  {
 		})
 	}
 	// console.log(recordData);
-	return recordData;
-	// })
+	// return recordData;
+	//**----------------------------Thumbnail Generation-----------------------------------------------------
+	let thumbnailHeight = 300,thumbnailWidth;
+	// async function generateThumbnail() {
+	var thumbnailGenTasks = files.slice(0, totalRecordNum).map((file) => {
+		// !？？？据说Promise.all的所有任务是并行执行的？？？
+		// return new Promise(async (resolve, reject) => {
+			// files.forEach(async (file) => {
+		var thumbnailSharp: sharp.Sharp = sharp(path.join(curDir, file))
+			thumbnailSharp.metadata().then((metadata) => {
+			if (metadata.width === undefined || metadata.height === undefined) { console.error('sharp was unabled to get width or height of src file'); return; }
+			thumbnailWidth = Math.floor(metadata.width / metadata.height * thumbnailHeight);
+		})
+		thumbnailSharp.resize(thumbnailWidth, thumbnailHeight);
+		const newThumbnailDir = path.join(thumbnailDir, file.replace(".png", "_thumbnail.jpg"));
+		// fs.exists
+		console.log("thumbnail generation done");
+		// ~~对不需要再指定await就可以处理完才下一步了
+		// !咳咳…………会先执行map……但是返回的promise还没执行呢………………
+		if(!fs.existsSync(newThumbnailDir))
+			return thumbnailSharp.toFile(newThumbnailDir);
+		return ;
+		// })
+	})
+	return Promise.all(thumbnailGenTasks).then(res=> recordData)
+	// !开始还把缩略图放到开头试图把全部文件都做了缩略图
 }
 export function updateRenamineRecord(name: string, add: boolean ){
 	if (add) {
@@ -519,7 +542,8 @@ export function renameMainProcess(renameScheme: string, game: string, message: s
 					if (indexIfRepeat === 0)
 					fs.rename(newPath,`${curDir}\\${getRenamed(fileName, renameScheme, game, message, ++indexIfRepeat)}`,(err) => {
 						if (err) { console.error('err in rename main process:', err); dialog.showErrorBox(`重命名失败${err.message}`, '可能是ts代码无法解决的系统问题，该问题在开发过程中稳定出现导致开发者头秃了一天。没有好的方法解决，请过了充足的一段时间以后再重试，或者更换其它更加成熟的软件。'); return; }
-						mainWindow.webContents.send('update-record-data', searchRecordData());
+						// mainWindow.webContents.send('update-record-data', searchRecordData());
+						updateRecordData();
 						renamingRecord = [];
 						resolve();
 					})
@@ -535,7 +559,8 @@ export function renameMainProcess(renameScheme: string, game: string, message: s
 				// fs.writeFileSync('D:/Code/FrontEnd/Mixed Projects/Nvidia Record Organizer/TestFile/test.txt', 'abc');
 				fs.rename(oldPath, newPath, (err) => {
 					if (err) { console.error('err in rename main process:', err); dialog.showErrorBox(`重命名失败${err.message}`, '可能是ts代码无法解决的系统问题，该问题在开发过程中稳定出现导致开发者头秃了一天。没有好的方法解决，请过了充足的一段时间以后再重试，或者更换其它更加成熟的软件。'); return; }
-					mainWindow.webContents.send('update-record-data', searchRecordData());
+					// mainWindow.webContents.send('update-record-data', searchRecordData());
+					updateRecordData();
 					renamingRecord = [];
 					resolve();
 				})

@@ -1,5 +1,5 @@
 import {  app, BrowserWindow, ipcMain } from "electron";
-import { changeCurDir, getRenameInfo, getSetting, initSetting, renameMainProcess, searchRecordData, store,  thumbnailDir,  updateAutoRefresh, updateAutoSort, updateDisplaySize, updateMaxGoupCount, updateMaxGroupGapSeconds, updateRenamePreview, updateRenamineRecord } from "./dataProcess";
+import { changeCurDir, getRenameInfo, getSetting, initSetting, renameMainProcess, store,  thumbnailDir,  updateAutoRefresh, updateAutoSort, updateDisplaySize, updateMaxGoupCount, updateMaxGroupGapSeconds, updateRecordData, updateRenamePreview, updateRenamineRecord } from "./dataProcess";
 import { mainWindow } from ".";
 import test from "node:test";
 import path from "node:path";
@@ -29,7 +29,9 @@ export function ipcSetup() {
 	})
 
 	ipcMain.on('request-update-record-data', () => {
-    mainWindow.webContents.send('update-record-data', searchRecordData());
+    // mainWindow.webContents.send('update-record-data', searchRecordData());
+	// updateRecordData();
+	refreshRecordData();
     // console.log('index update-record-data', testData)
 	})
 
@@ -46,7 +48,8 @@ export function ipcSetup() {
 	function refreshRecordData() {
 		if(updateRecordDataTimer)clearTimeout(updateRecordDataTimer)
 		updateRecordDataTimer = setTimeout(() => {
-			mainWindow.webContents.send('update-record-data', searchRecordData());
+			// mainWindow.webContents.send('update-record-data', searchRecordData());
+			updateRecordData();
 		},500)
 	}
 	ipcMain.on("request-change-max-group-gap-seconds", (e, arg) => {

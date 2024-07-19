@@ -5,7 +5,7 @@ export default function clearSlection() {
     curRecordGroup = document.getElementById(`records-group-${i}`) as HTMLDivElement;
     if (!curRecordGroup) break;
     for (const child of curRecordGroup.children) {
-		const checkbox = (child?.children[2].children[0].children[0] as HTMLInputElement)
+		const checkbox = (child.children?.[2].children[0].children[0] as HTMLInputElement)
 		if (checkbox.checked === true) {
 			checkbox.click();
 		}
