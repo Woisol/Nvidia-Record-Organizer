@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Record from "./Record"
-import { Checkbox, FormControlLabel, Tooltip, Zoom } from "@mui/material";
+import { Checkbox, FormControlLabel } from "@mui/material";
 type recordData = {
 	index: number,
 	curDir: string,
@@ -15,7 +15,7 @@ type recordData = {
 	thumbnailDir: string
 }
 // export var checkGroupAllChecked;
-// !这样就可以实现export了！！！
+// ！这样就可以实现export了！！！
 export default function RecordsGroup({ index, curDir, displaySize, handleDetailWinOpen, recordData, handleCleckBoxChecked, thumbnailDir }: recordData) {
 	// !额艹这个key是读不到的…………
 	const [indeterminate, setIndeterminate] = useState(false)
@@ -68,11 +68,11 @@ export default function RecordsGroup({ index, curDir, displaySize, handleDetailW
 		setIndeterminate(isIndeterminate);
 		return;
 	}
-	// ！！！千万注意！！！在组件不加条件的set绝对会循环调用的啊！！！这次是没报错直接没有显示………………
-	// !md终于实现了…………注意MUI的这个indeterminate为真的时候需要check也为真才会显示…………
-	// }
 	// checkGroupAllChecked();
 	// !艹导致无线重复re-render…………
+	// ！！！千万注意！！！在组件不加条件的set绝对会循环调用的啊！！！这次是没报错直接没有显示………………
+	// ！md终于实现了…………注意MUI的这个indeterminate为真的时候需要check也为真才会显示…………
+	// }
 	return (
 		<>
 			<div className="w-full h-fit mb-3 px-4 py-2 rounded-2xl bg-gray-100">
@@ -91,8 +91,9 @@ export default function RecordsGroup({ index, curDir, displaySize, handleDetailW
 										setTimeout(() => {
 											// !由于使用MUI而被迫绕路呜……必须要使用click()函数不然没有任何效果
 											checkbox.click()
-										}, i * 50)
+										}, i * 10)
 								}
+								// td考虑优化逻辑
 							}} size="small" />
 						} />
 					{/* <p className="pt-2">{recordData.dateTitle}</p> */}

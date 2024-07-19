@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Button } from '@mui/material';
 import RecordsGroup from './HomeStream/RecordsGroup';
 import TitleBar from './TitleBar';
 import RenameWin from './RenameWin/RenameWin';
+// ！出去无图片标识的方法！
 const emptySrc = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 var originTarget: HTMLImageElement, originImgClientRects: ClientRect, isReachCenter: boolean = false;
 type Props = {
@@ -35,7 +35,7 @@ export default function Home({ curDir }: Props) {
 		// !使用preload的方法连initSetting都进不去
 	}, [])
 
-	window.electron.ipcRenderer.on('update-record-data', (events, arg) => {
+	window.electron.ipcRenderer.on('update-record-data', (_e, arg) => {
 		// new Promise(resolve => {
 		setRecordDataGroup(arg);// resolve(1);
 		// }).then(() => {
@@ -46,7 +46,7 @@ export default function Home({ curDir }: Props) {
 	// ~~checkGroupAllChecked()可能不太行因为set的滞后性…………
 	// ~~可以使用Promise！不知为何并无法实现…………
 	// !应该是通过修改checkGroupAllChecked函数的实现方式来实现………………
-	window.electron.ipcRenderer.on('update-display-size', (events, arg) => { setDisplaySize(arg); console.log("Now Display in Size ", arg); })
+	window.electron.ipcRenderer.on('update-display-size', (_e, arg) => { setDisplaySize(arg); console.log("Now Display in Size ", arg); })
 
 	function handleDetailWinOpen(target: HTMLImageElement, detailWinOpen: boolean) {
 		const detailImg = document.getElementById("detailImg") as HTMLImageElement;
@@ -139,19 +139,21 @@ export default function Home({ curDir }: Props) {
 			<div className="w-full h-[calc(100vh-32px)] px-5 py-4 relative overflow-y-scroll select-none flex flex-col">
 				{recordDataGroup.length === 0 ?
 					<div className="w-fit h-24 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl text-nowrap">已经全部整理完啦❤️！</div>
-					// !woc！！！这！自己补全出来了tailwindcss的动画哈哈哈
+					// !woc！！！这！自己补全出来了tailwindcss的动画哈哈哈。虽然可惜好像没有多少
 					:
 					<>
 						{recordDataGroup.map((recordData, index) => <RecordsGroup key={index} index={index} curDir={curDir} displaySize={displaySize} handleDetailWinOpen={handleDetailWinOpen} recordData={recordData} handleCleckBoxChecked={handleCleckBoxChecked} thumbnailDir={thumbnailDir} />)}
 						{/* <Button size='medium' variant='contained' style={{ width: '300px', marginLeft: 'auto', marginRight: 'auto' }} >加载更多</Button> */}
+						{/* @ts-ignore */}
 						<RenameWin renamineWinOpen={renamineWinOpen} setRenamineWinOpen={setRenamineWinOpen} firstFileName={recordDataGroup[0].recordData[0].name} />
 					</>
 				}
-				<div className={`w-screen  h-[calc(100vh-32px)] fixed z-10 top-8 left-0 ${!detailWinOpen && 'pointer-events-none'}`} onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+				<div className={`w-screen  h-[calc(100vh-32px)] fixed z-30 top-8 left-0 ${!detailWinOpen && 'pointer-events-none'}`} onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 					// @ts-ignore
 					handleDetailWinOpen(e.target.children[1] as HTMLImageElement, false)
 				}} >
-					<div className={`w-full h-full backdrop-blur-2xl transition-all duration-500 ${detailWinOpen ? 'opacity-50' : 'opacity-0'}`} style={{ backgroundColor: 'rgb(0,0,0)' }}></div>
+					<div className={`w-full h-full transition-all duration-500 ${!detailWinOpen && 'opacity-0'}`} style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(5px)' }}></div>
+					{/* //！重要！背景黑 + 虚化的写法！ */}
 					<img id="detailImg" src={emptySrc} alt="" className="rounded-xl fixed object-cover transition-all duration-500" onClick={(e) => handleDetailWinOpen(e.target as HTMLImageElement, false)} />
 				</div>
 			</div >

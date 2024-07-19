@@ -1,7 +1,5 @@
-import { app, contextBridge,ipcRenderer } from 'electron'
+import {  contextBridge,ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { thumbnailDir } from '../main/dataProcess';
-import path from 'path';
 // ！woc！！！原来preload可以直接把函数，变量暴露给渲染进程！！都不需要你之前的进程间通讯艹
 const store = {
   // @ts-ignore

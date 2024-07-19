@@ -1,7 +1,6 @@
 import {  app, BrowserWindow, ipcMain } from "electron";
 import { changeCurDir, getRenameInfo, getSetting, initSetting, renameMainProcess, store,  thumbnailDir,  updateAutoRefresh, updateAutoSort, updateDisplaySize, updateMaxGoupCount, updateMaxGroupGapSeconds, updateRecordData, updateRenamePreview, updateRenamineRecord } from "./dataProcess";
 import { mainWindow } from ".";
-import test from "node:test";
 import path from "node:path";
 import { is } from "@electron-toolkit/utils";
 export function ipcSetup() {
@@ -16,11 +15,11 @@ export function ipcSetup() {
 	})
 
 	//**----------------------------Data-----------------------------------------------------
-	ipcMain.handle("electron-store-get", async(event, key) => {
+	ipcMain.handle("electron-store-get", async(_e, key) => {
 		// @ts-ignore
 		return store.get(key);
 	})
-	ipcMain.on("electron-store-set", (event, key, value) => {
+	ipcMain.on("electron-store-set", (_e, key, value) => {
 		// @ts-ignore
 		store.set(key, value);
 	})
@@ -35,13 +34,13 @@ export function ipcSetup() {
     // console.log('index update-record-data', testData)
 	})
 
-	ipcMain.on('request-change-cur-dir', (event, arg) => {
+	ipcMain.on('request-change-cur-dir', () => {
 		const curDir = changeCurDir();
 		if(curDir)
 		mainWindow.webContents.send('update-cur-dir', curDir);
 	})
 
-	ipcMain.on("request-change-display-size", (e, arg) => {
+	ipcMain.on("request-change-display-size", (_e, arg) => {
 		mainWindow.webContents.send('update-display-size', updateDisplaySize(arg));
 	})
 	var updateRecordDataTimer: NodeJS.Timeout | null = null;
@@ -52,19 +51,19 @@ export function ipcSetup() {
 			updateRecordData();
 		},500)
 	}
-	ipcMain.on("request-change-max-group-gap-seconds", (e, arg) => {
+	ipcMain.on("request-change-max-group-gap-seconds", (_e, arg) => {
 		updateMaxGroupGapSeconds(arg);
 		refreshRecordData();
 	})
-	ipcMain.on("request-change-max-group-count", (e, arg) => {
+	ipcMain.on("request-change-max-group-count", (_e, arg) => {
 		updateMaxGoupCount(arg);
 		refreshRecordData();
 	})
-	ipcMain.on("request-change-auto-sort", (e, arg) => {
+	ipcMain.on("request-change-auto-sort", (_e, arg) => {
 		updateAutoSort(arg);
 		refreshRecordData();
 	})
-	ipcMain.on("request-change-auto-refresh", (e, arg) => {
+	ipcMain.on("request-change-auto-refresh", (_e, arg) => {
 		updateAutoRefresh(arg);
 	})
 
@@ -80,21 +79,21 @@ export function ipcSetup() {
 		name: string,
 		checked: boolean
 	}
-	ipcMain.on("request-update-renaming-record", (e, arg:renamingRecordData) => {
+	ipcMain.on("request-update-renaming-record", (_e, arg:renamingRecordData) => {
 		updateRenamineRecord(arg.name, arg.checked);
 	})
 	ipcMain.handle('request-init-rename-info', () => {
 		return getRenameInfo();
 	})
 	type renameProps = {renameScheme:string, game:string, message:string}
-	ipcMain.handle('request-update-rename-preview', (e, arg:renameProps) => {
+	ipcMain.handle('request-update-rename-preview', (_e, arg:renameProps) => {
 		return updateRenamePreview(arg.renameScheme,arg.game,arg.message);
 	})
-	ipcMain.on('request-rename-process', (e, arg:renameProps) => {
+	ipcMain.on('request-rename-process', (event, arg:renameProps) => {
 		// setTimeout(() => {mainWindow.webContents.send('finish-rename-process',1)}, 2000)
 		renameMainProcess(arg.renameScheme, arg.game, arg.message).then(() =>
 			// mainWindow.webContents.send('finish-rename-process', 1)
-			e.reply('finish-rename-process', 1)
+			event.reply('finish-rename-process', 1)
 		)
 	})
 

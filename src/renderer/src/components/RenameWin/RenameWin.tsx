@@ -37,7 +37,7 @@ export default function RenameWin({ renamineWinOpen, setRenamineWinOpen, firstFi
 	function updateRenamePreview(renameScheme: string, game: string, message: string) {
 		window.electron.ipcRenderer.invoke("request-update-rename-preview", { renameScheme: renameScheme, game: game, message: message }).then((result: string) => { setInstance(result) })
 	}
-	window.electron.ipcRenderer.on('finish-rename-process', (e, arg) => {
+	window.electron.ipcRenderer.on('finish-rename-process', (_e, arg) => {
 		if (arg === 1) {
 			setIsRenameProcess(false);
 			setRenamineWinOpen(false);
@@ -49,7 +49,7 @@ export default function RenameWin({ renamineWinOpen, setRenamineWinOpen, firstFi
 
 	return (
 		<>
-			<div className={`w-full h-[calc(100vh-32px)] fixed left-0 top-8 z-30 backdrop-blur-2xl transition-all duration-500 ${renamineWinOpen ? 'opacity-50' : 'opacity-0 pointer-events-none'}`} style={{ backgroundColor: 'rgb(0,0,0)' }}></div>
+			<div className={`w-full h-[calc(100vh-32px)] fixed left-0 top-8 z-20 transition-all duration-500 ${!renamineWinOpen && 'opacity-0 pointer-events-none'}`} style={{ backdropFilter: 'blur(5px)', backgroundColor: 'rgba(0,0,0,0.5)' }}></div>
 			{/* //!pointer-events-none的究极大补丁哈哈哈哈 */}
 			<div className={`${renamineWinOpen ? 'w-[400px] h-[600px] right-1/2 top-1/2 translate-x-1/2 -translate-y-1/2 ' : 'w-14 h-14 right-10 top-14 bg-white hover:scale-110 active:scale-90 '} fixed z-30 rounded-2xl shadow-2xl overflow-hidden transition-all duration-500 `}>
 				<div className={`${renamineWinOpen ? 'w-[400px]' : 'w-14'} h-14 absolute right-0 flex`}>

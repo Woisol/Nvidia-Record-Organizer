@@ -215,6 +215,7 @@ const gameNameRegex = /^.*(?= Screenshot)/;
 var game: string | undefined, testFileName: string;
 export function updateRecordData() {
 	searchRecordData().then(data => {mainWindow.webContents.send('update-record-data', data)})
+	// !这个思路才对…………只有处理完了才then发送而不是发送的时候等待结果…………
 }
 async function searchRecordData() :Promise<recordData> {
 	// ~~ts报错async类型必须返回Promise，但是实际上返回一般数据也可以变为resolve(xxx)
@@ -229,7 +230,7 @@ async function searchRecordData() :Promise<recordData> {
 	res.sort();
 	const recordRegex = /^.* Screenshot \d{4}.\d{2}.\d{2} - \d{2}.\d{2}.\d{2}.\d{2,3}.png$/;
 	// const dayRegex = /(?<=Screenshot \d{4}.\d{2}.)\d{2}(?= - \d{2}.\d{2}.\d{2}.\d{2}.png)/;
-	const files = res.filter((file, index) =>  (!autoSort || recordRegex.test(file)));//file.endsWith('.png') &&
+	const files = res.filter((file) =>  (!autoSort || recordRegex.test(file)));//file.endsWith('.png') &&
 
 	if (files.length === 0) {
 		console.error("当前目录下没有找到回放文件");
@@ -380,7 +381,7 @@ async function searchRecordData() :Promise<recordData> {
 		return ;
 		// })
 	})
-	return Promise.all(thumbnailGenTasks).then(res=> recordData)
+	return Promise.all(thumbnailGenTasks).then(_res=> recordData)
 	// !开始还把缩略图放到开头试图把全部文件都做了缩略图
 }
 export function updateRenamineRecord(name: string, add: boolean ){
@@ -475,7 +476,7 @@ function getRenamed(originName:string,renameScheme: string,game: string, message
 	// !喔喔，FT：(match, key) => params[key] || match)箭头函数，指如果match中的字符串符合就hrig params[key]，不然就保留原来的match……
 	// !还是有点难理解这种语法…………好好消化一下
 	// }
-	// @ts-ignor
+	// @ts-ignore
 	var renamed:string = renameScheme.replaceVariable("date", date).replaceVariable("yyyy", year).replaceVariable("MM", month).replaceVariable("dd", day)
 	.replaceVariable("HH", hour.toString().padStart(2,"0")).replaceVariable("mm", min.toString().padStart(2,"0")).replaceVariable("ss", sec.toString().padStart(2,"0")).replaceVariable("game", game).replaceVariable("message", message);
 	if (indexIfRepeat > 0) {
