@@ -4,12 +4,6 @@ import { mainWindow } from ".";
 import path from "node:path";
 import { is } from "@electron-toolkit/utils";
 export function ipcSetup() {
-	// setTimeout(() => {
-		// }, 500)
-		// !人家明明有专门的事件的…………你上个项目…………
-		// document.addEventListener('DOMContentLoaded', () => {
-	// })
-	// !咳咳并不能在主进程内使用，只能在渲染或者preload
 	ipcMain.once('DOMContentLoaded', () => {
 		initSetting();
 	})
@@ -28,10 +22,7 @@ export function ipcSetup() {
 	})
 
 	ipcMain.on('request-update-record-data', () => {
-    // mainWindow.webContents.send('update-record-data', searchRecordData());
-	// updateRecordData();
 	refreshRecordData();
-    // console.log('index update-record-data', testData)
 	})
 
 	ipcMain.on('request-change-cur-dir', () => {
@@ -47,7 +38,6 @@ export function ipcSetup() {
 	function refreshRecordData() {
 		if(updateRecordDataTimer)clearTimeout(updateRecordDataTimer)
 		updateRecordDataTimer = setTimeout(() => {
-			// mainWindow.webContents.send('update-record-data', searchRecordData());
 			updateRecordData();
 		},500)
 	}
@@ -90,9 +80,7 @@ export function ipcSetup() {
 		return updateRenamePreview(arg.renameScheme,arg.game,arg.message);
 	})
 	ipcMain.on('request-rename-process', (event, arg:renameProps) => {
-		// setTimeout(() => {mainWindow.webContents.send('finish-rename-process',1)}, 2000)
 		renameMainProcess(arg.renameScheme, arg.game, arg.message).then(() =>
-			// mainWindow.webContents.send('finish-rename-process', 1)
 			event.reply('finish-rename-process', 1)
 		)
 	})
@@ -114,7 +102,6 @@ export function ipcSetup() {
 			},
 			parent: mainWindow,
 			modal: true,
-			// show: false,
 			frame: false,
 		});
 		if (is.dev && process.env['ELECTRON_RENDERER_URL']) {

@@ -1,16 +1,7 @@
-import { ArrowBack, Construction } from "@mui/icons-material";
-import { Button, IconButton } from "@mui/material";
-import { ChangeEvent, useState } from "react";
+import { ArrowBack } from "@mui/icons-material";
+import { IconButton } from "@mui/material";
+import { useState } from "react";
 import SettingComponent from "./Setting-Component";
-
-type setting = {
-	curDir: string,
-	displaySize: number,
-	maxGroupGapSeconds: number,
-	maxGroupCount: number,
-	autoSort: boolean,
-	autoRefresh: number
-}
 
 export default function Setting() {
 	const [displaySize, setDisplaySize] = useState<number>(0);
@@ -19,13 +10,13 @@ export default function Setting() {
 	const [autoSort, setAutoSort] = useState<boolean>(false);
 	const [autoRefresh, setAutoRefresh] = useState<number | string>(0);
 
-	var settingDataGroup = {
-		displaySize: displaySize,
-		maxGroupGapSeconds: maxGroupGapSeconds,
-		maxGroupCount: maxGroupCount,
-		autoSort: autoSort,
-		autoRefresh: autoRefresh,
-	}
+	// var settingDataGroup = {
+	// 	displaySize: displaySize,
+	// 	maxGroupGapSeconds: maxGroupGapSeconds,
+	// 	maxGroupCount: maxGroupCount,
+	// 	autoSort: autoSort,
+	// 	autoRefresh: autoRefresh,
+	// }
 	type setting = {
 		curDir: string,
 		displaySize: number,
@@ -36,19 +27,12 @@ export default function Setting() {
 	}
 
 	window.electron.ipcRenderer.send("request-init-setting");
-	window.electron.ipcRenderer.on("init-setting", (event, data: setting) => {
+	window.electron.ipcRenderer.on("init-setting", (_e, data: setting) => {
 		setDisplaySize(data.displaySize);
 		setMaxGroupGapSeconds(data.maxGroupGapSeconds);
 		setMaxGroupCount(data.maxGroupCount);
 		setAutoSort(data.autoSort);
 		setAutoRefresh(data.autoRefresh);
-
-		// handleDisplaySizeChange(data.displaySize);
-		// !md调用这个直接交错循环………………vsc都卡死了哈哈关不掉…………
-		// handleMaxGroupGapSecondsChange(data.maxGroupGapSeconds);
-		// handleMaxGroupCountChange(data.maxGroupCount);
-		// handleAutoSortChange(data.autoSort);
-		// handleAutoRefreshChange(data.autoRefresh);
 	})
 
 	function handleDisplaySizeChange(size: number) {
@@ -56,38 +40,12 @@ export default function Setting() {
 		window.electron.ipcRenderer.send("request-change-display-size", size);
 	}
 	function handleMaxGroupGapSecondsChange(sec: string) {
-		// ~~md别管我就是能实现…………
-		// !如果还要加一个parseInt会导致输入卡顿
-		// @ts-ignore
-		// const sec = (target).value as number;
 		setMaxGroupGapSeconds(sec);
-		// if (!valid) return;
-		// if (sec < 0) {
-		// target.value = "0";
-		// setMaxGroupGapSeconds(0);
-		// return;
-		// }
-		// if (sec === "") {
-		// 	// setErr(true);
-		// 	setMaxGroupGapSecondsErr(true);
-		// 	// !不知为何在外面设置就会导致奇怪的无法输入的问题…………即便确实已经先set了…………
-		// 	// target.setAttribute("error", true)
-		// 	// !这个也无法设置…………
-		// 	return
-		// }
-		// // setErr(false);
-		// setMaxGroupGapSecondsErr(false);
 		window.electron.ipcRenderer.send("request-change-max-group-gap-seconds", sec);
 	}
 	function handleMaxGroupCountChange(count: string) {
-		// const count = parseInt((target).value);
 		// @ts-ignore
 		setMaxGroupCount(count as number);
-		// if (count === "") {
-		// 	// (target).value = "1";
-		// 	setMaxGroupCountErr(true);
-		// 	return;
-		// }
 		window.electron.ipcRenderer.send("request-change-max-group-count", count);
 	}
 	function handleAutoSortChange(autoSort: boolean) {
@@ -95,20 +53,11 @@ export default function Setting() {
 		window.electron.ipcRenderer.send("request-change-auto-sort", autoSort);
 	}
 	function handleAutoRefreshChange(autoRefresh: string) {
-		// const autoRefresh = parseInt((target).value);
 		// @ts-ignore
 		setAutoRefresh(autoRefresh);
-		// if (autoRefresh === "") {
-		// 	// (target).value = "0";
-		// 	setAutoRefreshErr(true);
-		// 	return;
-		// }
-		// setAutoRefreshErr(false);
 		window.electron.ipcRenderer.send("request-change-auto-refresh", autoRefresh);
 	}
-
 	document.addEventListener('keydown', (event) => { if (event.key === 'Escape') { window.close() } })
-	// !不知用keypress是什么效果为什么不得
 
 	return (
 		<div className="w-screen h-screen flex flex-col overflow-hidden">

@@ -1,14 +1,13 @@
 import { app, shell, BrowserWindow } from 'electron'
 import path from 'path'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
+import { electronApp, is, optimizer } from '@electron-toolkit/utils'
+// import icon from '../../resources/Icon.png'
 import { ipcSetup } from './ipcSetup'
 import { initDefaultSetting, thumbnailDir } from './dataProcess'
 import contextMenuSetup from './contextMenu'
 import * as fs from 'fs'
 
 export var mainWindow: BrowserWindow;
-// export var settingWindow : BrowserWindow;
 function createWindow(): void {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -21,7 +20,7 @@ function createWindow(): void {
 
     // show: false,
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
+    // ...(process.platform === 'linux' ? { icon } : {}),
 
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
@@ -41,7 +40,6 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show();
-    // mainWindow.webContents.openDevTools();
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -55,6 +53,7 @@ function createWindow(): void {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
+  // mainWindow.loadFile(path.join(__dirname, '../../out/renderer/index.html'))
   }
 
   ipcSetup();
@@ -95,11 +94,11 @@ app.on('window-all-closed', () => {
 })
 
 app.on('quit', () => {
+  //**----------------------------清除缓存-----------------------------------------------------
   fs.readdir(thumbnailDir, (err, files) => {
     if (err) { console.error(err); return; }
 
     files.forEach(file => {
-      // console.log('going to delete file: ', path.join(thumbnailDir, file));
       fs.unlink(path.join(thumbnailDir, file), err => {if(err)console.error('error when trying to delete thumbnail ',file,': ',err);})
     })
   })

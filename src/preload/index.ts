@@ -1,6 +1,5 @@
 import {  contextBridge,ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-// ！woc！！！原来preload可以直接把函数，变量暴露给渲染进程！！都不需要你之前的进程间通讯艹
 const store = {
   // @ts-ignore
   get: async(key: string) => { const res = await ipcRenderer.invoke("electron-store-get", key);  console.log("res:", res); return res;},
@@ -27,15 +26,13 @@ if (process.contextIsolated) {
   // @ts-ignore
   window.store = store;
   // @ts-ignore
-  window.fs = require('fs');
+  // window.fs = require('fs');
   // // @ts-ignore
   // window.path = require('path');
   // // @ts-ignore
   // window.app = require('electron').app;
 
-  // @ts-ignore
   // window.thumbnailDir = path.join(app.getPath('temp'), 'NvidiaRecordOrganizer');
-  // !不知为何又传不过去…………一开就白页甚至没有报错……
   console.log("preload without contextBridge");
 }
 
