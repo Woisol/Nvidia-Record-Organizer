@@ -68,16 +68,16 @@ export function initDefaultSetting() {
 		// @ts-ignore
 		store  = new res.default();
 		// @ts-ignore
-		const displaySize = store.get('renameScheme');
+		const displaySize = store.get('displaySize');
 		if (displaySize === undefined) {
 			const defaultSetting:setting = {
 				curDir:path.join(app.getPath('videos'),"Yuan Shen 原神"),
 				displaySize: 1,
-				maxGroupGapSeconds: 30,
-				maxGroupCount: 10,
+				maxGroupGapSeconds: 120,
+				maxGroupCount: 30,
 				autoSort: true,
-				autoRefresh: 5,
-				renameScheme:"{Game} {Date} {yyyy}-{MM}-{dd} {HH}:{mm}:{ss} {Message} ({index})"
+				autoRefresh: 1,
+				renameScheme:"{game} {date} {yyyy}-{MM}-{dd} {HH}.{mm}.{ss} {message} {indexIfRepeat}"
 			}
 			// @ts-ignore
 			store.set(defaultSetting);

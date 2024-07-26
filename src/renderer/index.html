@@ -5,13 +5,15 @@
   <meta charset="UTF-8" />
   <title>Nvidia Record Organizer</title>
   <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-  <!-- <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'bolb://*; data:" /> -->
+  <!-- <meta http-equiv="Content-Security-Policy" content=" script-src 'self'; style-src 'self' 'unsafe-inline'; data:" /> -->
+  <!-- !这里和打包白屏无关…… -->
+  <!-- default-src 'self';img-src 'self'; -->
 </head>
 
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
+  <!-- //!这里其实加不加.，打包以后路径似乎都是正确的 -->
 </body>
 
 </html>

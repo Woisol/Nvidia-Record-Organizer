@@ -24,5 +24,7 @@ export default defineConfig({
         }
       }
     },
+    // !虽然官网教程也有把build选项放到外部顶层的……但是那是vite……electron-vite的话就应该放到renderer里
+    base: './'
   },
 })

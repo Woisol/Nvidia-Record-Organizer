@@ -12,12 +12,17 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: nvidia-record-organizer
+  executableName: Nvidia Record Organizer
+  icon: resources\Icon_256.png
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
+  # icon: resources\Icon.png
+  installerIcon: 'resources\Icon_256.png'
+  uninstallerIcon: 'resources\Icon_256.png'
+  # !这两个也需要补充
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
@@ -26,8 +31,10 @@ mac:
     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
   notarize: false
+  icon: resources\Icon_256.png
 dmg:
   artifactName: ${name}-${version}.${ext}
+  # icon: resources\Icon.png
 linux:
   target:
     - AppImage
@@ -35,8 +42,10 @@ linux:
     - deb
   maintainer: electronjs.org
   category: Utility
+  icon: resources\Icon_256.png
 appImage:
   artifactName: ${name}-${version}.${ext}
+  # icon: resources\Icon.png
 npmRebuild: false
 publish:
   provider: generic

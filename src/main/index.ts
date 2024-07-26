@@ -37,6 +37,7 @@ function createWindow(): void {
       symbolColor: 'black',
     },
   })
+  // mainWindow.webContents.openDevTools();
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show();
@@ -54,6 +55,8 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   // mainWindow.loadFile(path.join(__dirname, '../../out/renderer/index.html'))
+  // mainWindow.loadURL('http://localhost')
+  // !网上看到的…………并不行
   }
 
   ipcSetup();
