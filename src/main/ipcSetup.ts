@@ -108,7 +108,6 @@ export function ipcSetup() {
 			SettingWindow.loadURL(process.env['ELECTRON_RENDERER_URL']+'/Settings')
 		} else {
 			SettingWindow.loadFile(path.join(__dirname, '../renderer/setting.html'))
-			// !index.html也一样的…………开发环视用不了loadFile…………
 		}
 		SettingWindow.once("ready-to-show", () => {
 			SettingWindow?.show();
