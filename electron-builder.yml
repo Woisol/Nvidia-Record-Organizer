@@ -19,8 +19,14 @@ nsis:
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
-  installerIcon: 'resources\Icon_256.png'
-  uninstallerIcon: 'resources\Icon_256.png'
+  # 自定义安装位置必须要有这个oneClick: false……
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  # !这个是安装完可选的可以保留
+  # runAfterFinish: false
+  # !注意是ico文件…………
+  installerIcon: resources\icon.ico
+  uninstallerIcon: resources\icon.ico
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
@@ -43,8 +49,8 @@ linux:
 appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
-publish:
-  provider: generic
-  url: https://example.com/auto-updates
+# publish:
+#   provider: generic
+#   url: https://example.com/auto-updates
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
